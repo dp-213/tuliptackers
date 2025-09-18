@@ -4,14 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tulip Tackers – Markermeer Party-Schleife</title>
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-o9N1j7kG8GZQ2E2rU8WcJ6iYG3PaP8pKkG2JkG4bChg="
-    crossorigin=""
-  />
+  <!-- Leaflet CSS (ohne SRI, um CDN-SRI-Mismatch auszuschließen) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    html, body, #map { height: 100%; margin: 0; }
+    /* Robust: Karte nutzt Viewport-Höhe statt % (verhindert 0px-Höhenprobleme) */
+    html, body { height: 100%; margin: 0; }
+    #map { height: 100vh; width: 100%; }
     .legend { position: absolute; bottom: 16px; left: 16px; background: rgba(255,255,255,.92); border: 1px solid #888; border-radius: 8px; padding: 10px 12px; font: 13px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
     .legend .swatch { display:inline-block; width: 18px; height: 4px; background:#3388ff; margin-right:6px; vertical-align: middle; }
     .legend .swatch-alt { display:inline-block; width: 18px; height: 4px; background:#3388ff; border-bottom: 2px dashed #3388ff; margin-right:6px; vertical-align: middle; }
@@ -35,7 +33,8 @@
     Zeiten je Segment: Bereich für <b>7–6 kn</b>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1j7kG8GZQ2E2rU8WcJ6iYG3PaP8pKkG2JkG4bChg=" crossorigin=""></script>
+  <!-- Leaflet JS (ohne SRI) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // --- Konfiguration ---
     const ports = {
@@ -62,14 +61,22 @@
     // Map
     const avg = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
     const center = [avg(Object.values(ports).map(p=>p[0])), avg(Object.values(ports).map(p=>p[1]))];
-    const map = L.map('map').setView(center, 10);
+    const map = L.map('map');
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Tile-Layer zuerst laden
+    const tile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: '&copy; OpenStreetMap-Mitwirkende'
     }).addTo(map);
 
-    // Marker + Popups (mit Hafenempfehlungen)
+    function timeRange(nm) { // Stunden bei 7–6 kn
+      const t7 = (nm/7).toFixed(1);
+      const t6 = (nm/6).toFixed(1);
+      return `${t7}–${t6} h (7–6 kn)`;
+    }
+
+    function midPoint(a, b) { return [ (a[0]+b[0])/2, (a[1]+b[1])/2 ]; }
+
     const harborInfo = {
       Lemmer: 'Base: Enjoy Sailing',
       Hoorn: 'Häfen: Grashaven (komfortabel) • Binnenhaven/Oude Doelenkade (zentral)',
@@ -84,29 +91,15 @@
         .bindTooltip(name);
     });
 
-    function timeRange(nm) { // Stunden bei 7–6 kn
-      const t7 = (nm/7).toFixed(1);
-      const t6 = (nm/6).toFixed(1);
-      return `${t7}–${t6} h (7–6 kn)`;
-    }
-
-    function midPoint(a, b) {
-      return [ (a[0]+b[0])/2, (a[1]+b[1])/2 ];
-    }
-
-    function segmentLabel(aName, bName, color='#3388ff') {
+    function segmentLabel(aName, bName) {
       const key1 = `${aName}-${bName}`;
       const key2 = `${bName}-${aName}`;
       const nm = dNM[key1] || dNM[key2] || null;
       if (!nm) return null;
-
       const a = ports[aName];
       const b = ports[bName];
       const pos = midPoint(a,b);
-      return L.marker(pos, {
-        interactive:false,
-        icon: L.divIcon({ className: 'lbl', html: `${aName} → ${bName}<br/>${nm} sm · ${timeRange(nm)}` })
-      });
+      return L.marker(pos, { interactive:false, icon: L.divIcon({ className: 'lbl', html: `${aName} → ${bName}<br/>${nm} sm · ${timeRange(nm)}` }) });
     }
 
     function makeRoute(names, dashed=false) {
@@ -119,30 +112,24 @@
     const A = makeRoute(routeA, false);
     const B = makeRoute(routeB, true);
 
-    // Layer control via Buttons
     function showRoute(group) {
-      // clear all
-      map.eachLayer(l => { /* keep tile layer */ });
-      // Remove existing route layers if present
       [A, B].forEach(R => {
-        map.removeLayer(R.line);
-        R.labels.forEach(lbl => lbl && map.removeLayer(lbl));
+        if (map.hasLayer(R.line)) map.removeLayer(R.line);
+        R.labels.forEach(lbl => { if (lbl && map.hasLayer(lbl)) map.removeLayer(lbl); });
       });
-      // Add desired
       map.addLayer(group.line);
       group.labels.forEach(lbl => lbl && map.addLayer(lbl));
-      // Fit bounds
       map.fitBounds(group.line.getBounds().pad(0.15));
     }
-
-    // Init with A
-    showRoute(A);
 
     // Buttons
     const btnA = document.getElementById('btnA');
     const btnB = document.getElementById('btnB');
     btnA.addEventListener('click', () => { btnA.classList.add('active'); btnB.classList.remove('active'); showRoute(A); });
     btnB.addEventListener('click', () => { btnB.classList.add('active'); btnA.classList.remove('active'); showRoute(B); });
+
+    // Initial anzeigen
+    showRoute(A);
   </script>
 </body>
 </html>
