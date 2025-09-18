@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tulip Tackers – Markermeer Party-Schleife</title>
-  <!-- Leaflet core -->
+  <title>Tulip Tackers – Markermeer Party‑Schleife (Seekarte)</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body { height: 100%; margin: 0; }
@@ -26,33 +25,51 @@
     <button id="btnB" title="Zeige Alternative über Urk">Route B</button>
   </div>
   <div class="legend">
-    <strong>Tulip Tackers – Markermeer</strong><br/>
-    <span class="swatch"></span> Party‑Schleife: Lemmer → Hoorn → Amsterdam → Volendam → Lemmer<br/>
-    <span class="swatch-alt"></span> Alternative: Amsterdam → Urk → Lemmer<br/>
-    Zeiten je Segment: Bereich für <b>7–6 kn</b>
+    <strong>Tulip Tackers – Seekarte</strong><br/>
+    <span class="swatch"></span> Party‑Schleife (Lemmer → Hoorn → Amsterdam → Volendam → Lemmer)<br/>
+    <span class="swatch-alt"></span> Alternative (Amsterdam → Urk → Lemmer)<br/>
+    Basemap: Esri Ocean + OpenSeaMap (Seamarks)
   </div>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     // ---- Daten ----
     const ports = {
       Lemmer:    [52.846, 5.708],
       Hoorn:     [52.643, 5.071],
-      Amsterdam: [52.379, 4.900],
+      Amsterdam: [52.383, 4.900], // Sixhaven grob
       Volendam:  [52.495, 5.073],
       Urk:       [52.664, 5.604]
     };
 
-    const harborInfo = {
-      Lemmer: 'Base: Enjoy Sailing',
-      Hoorn: 'Häfen: Grashaven (komfortabel) • Binnenhaven/Oude Doelenkade (zentral)',
-      Amsterdam: 'Häfen: Sixhaven (zentral, eng) • Amsterdam Marina (groß, ruhig)',
-      Volendam: 'Hafen: Marina Volendam (groß, nahe Partymeile)',
-      Urk: 'Hafen: Urkerhaven (gemütlich, Fischeratmosphäre)'
-    };
+    // "Segel-Route" über Wasser mittels Zwischen-Wegpunkten (keine Luftlinie)
+    const routeA_pts = [
+      ports.Lemmer,
+      [52.820, 5.530], // raus aufs IJsselmeer
+      [52.750, 5.350],
+      [52.662, 5.200],
+      ports.Hoorn,
+      [52.610, 5.100], [52.580, 5.050], [52.510, 5.030], // entlang Volendam-Küste
+      [52.450, 5.000], [52.400, 4.950],
+      [52.372, 4.985], // Oranjesluizen
+      ports.Amsterdam,
+      [52.372, 4.985], // zurück durch die Schleuse
+      [52.470, 5.030], [52.495, 5.060],
+      ports.Volendam,
+      [52.530, 5.100], [52.600, 5.200], [52.680, 5.400], [52.780, 5.550],
+      ports.Lemmer
+    ];
 
-    // Distanzen (NM) und Zeiten
+    const routeB_pts = [
+      ports.Amsterdam,
+      [52.372, 4.985], // Oranjesluizen raus
+      [52.520, 5.050], [52.600, 5.250], [52.630, 5.350],
+      ports.Urk,
+      [52.720, 5.520], [52.790, 5.600],
+      ports.Lemmer
+    ];
+
+    // Distanzen (NM) pro Etappe (für Labels)
     const dNM = {
       'Lemmer-Hoorn': 35,
       'Hoorn-Amsterdam': 30,
@@ -62,75 +79,81 @@
       'Urk-Lemmer': 20,
     };
 
-    const routeA = ['Lemmer','Hoorn','Amsterdam','Volendam','Lemmer'];
-    const routeB = ['Amsterdam','Urk','Lemmer'];
-
     // ---- Karte ----
     const map = L.map('map', { zoomControl: true });
 
-    // Basemap: Carto Voyager (klarer, moderner Look)
-    const voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-      maxZoom: 20,
-      attribution: '&copy; OpenStreetMap-Mitwirkende, &copy; CARTO'
+    // Esri Ocean Basemap (lizenzfrei nutzbar) + Ocean Labels
+    const esriOcean = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Basemap: &copy; Esri Ocean', maxZoom: 19
+    }).addTo(map);
+    const esriLabels = L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Labels: &copy; Esri', maxZoom: 19
     }).addTo(map);
 
-    // Maßstab
-    L.control.scale({ imperial: false }).addTo(map);
+    // OpenSeaMap Seamarks als Overlay (Tonnen, Lateralzeichen etc.)
+    const seamarks = L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenSeaMap Contributors', maxZoom: 18, opacity: 0.9
+    }).addTo(map);
 
-    // Marker
+    L.control.layers({ 'Esri Ocean': L.layerGroup([esriOcean, esriLabels]) }, { 'OpenSeaMap Seamarks': seamarks }, { collapsed: true }).addTo(map);
+    L.control.scale({ imperial:false }).addTo(map);
+
+    // Häfen
+    const harborInfo = {
+      Lemmer: 'Base: Enjoy Sailing',
+      Hoorn: 'Grashaven • Binnenhaven/Oude Doelenkade',
+      Amsterdam: 'Sixhaven (zentral, eng) • Amsterdam Marina (groß, ruhig) • Oranjesluizen',
+      Volendam: 'Marina Volendam',
+      Urk: 'Urkerhaven'
+    };
     const portMarkers = Object.entries(ports).map(([name, latlng]) =>
       L.marker(latlng).bindPopup(`<b>${name}</b><br/>${harborInfo[name] || ''}`).bindTooltip(name)
     );
 
-    // Helpers
-    function timeRange(nm){ const t7=(nm/7).toFixed(1), t6=(nm/6).toFixed(1); return `${t7}–${t6} h (7–6 kn)`; }
-    function segKey(a,b){ return dNM[`${a}-${b}`] || dNM[`${b}-${a}`]; }
+    // Helper
+    const timeRange = nm => `${(nm/7).toFixed(1)}–${(nm/6).toFixed(1)} h (7–6 kn)`;
+    function labelMid(a, b){ return [ (a[0]+b[0])/2, (a[1]+b[1])/2 ]; }
 
-    function makeRoute(names, dashed=false){
-      const coords = names.map(n => ports[n]);
-      const line = L.polyline(coords, { color:'#1565c0', weight:5, opacity:0.95, lineCap:'round', lineJoin:'round', dashArray: dashed ? '10,8' : null });
-      const labels = names.slice(0,-1).map((a,i)=>{
-        const b = names[i+1];
-        const nm = segKey(a,b); if(!nm) return null;
-        const midLat = (ports[a][0]+ports[b][0])/2; const midLng = (ports[a][1]+ports[b][1])/2;
+    function addSegmentLabels(names){
+      const labels = [];
+      const pairs = [ ['Lemmer','Hoorn'], ['Hoorn','Amsterdam'], ['Amsterdam','Volendam'], ['Volendam','Lemmer'] ];
+      pairs.forEach(([a,b])=>{
+        const nm = dNM[`${a}-${b}`] || dNM[`${b}-${a}`]; if(!nm) return;
+        const pos = labelMid(ports[a], ports[b]);
         const html = `<div class="lbl"><b>${a} → ${b}</b><br/>${nm} sm · <small>${timeRange(nm)}</small></div>`;
-        return L.marker([midLat, midLng], {interactive:false, icon:L.divIcon({className:'', html})});
+        labels.push(L.marker(pos, {interactive:false, icon:L.divIcon({className:'', html})}));
       });
-      return { line, labels };
+      return labels;
     }
 
-    const A = makeRoute(routeA, false);
-    const B = makeRoute(routeB, true);
+    // Linien
+    const lineA = L.polyline(routeA_pts, { color:'#1565c0', weight:5, opacity:0.95, lineCap:'round', lineJoin:'round' });
+    const lineB = L.polyline(routeB_pts, { color:'#1565c0', weight:5, opacity:0.85, dashArray:'10,8' });
+    const labelsA = addSegmentLabels();
+    const labelsB = [ // nur zwei Segmente
+      L.marker(labelMid(ports.Amsterdam, ports.Urk), {interactive:false, icon:L.divIcon({className:'', html:`<div class='lbl'><b>Amsterdam → Urk</b><br/>40 sm · <small>${timeRange(40)}</small></div>`})}),
+      L.marker(labelMid(ports.Urk, ports.Lemmer), {interactive:false, icon:L.divIcon({className:'', html:`<div class='lbl'><b>Urk → Lemmer</b><br/>20 sm · <small>${timeRange(20)}</small></div>`})}),
+    ];
 
-    // Alle Layer in FeatureGroup (für schönes Fit)
-    const group = L.featureGroup([
-      ...portMarkers,
-      A.line, ...A.labels,
-      B.line, ...B.labels
-    ]).addTo(map);
+    // Layer Groups
+    const groupA = L.layerGroup([lineA, ...labelsA]).addTo(map);
+    const groupB = L.layerGroup([lineB, ...labelsB]);
+    portMarkers.forEach(m=>m.addTo(map));
 
-    // Erstes Fit (gesamtes Revier sauber im Bild)
-    map.fitBounds(group.getBounds().pad(0.15));
+    // Fit auf Revier
+    const all = L.featureGroup([groupA, groupB, ...portMarkers]);
+    map.fitBounds(all.getBounds().pad(0.15));
 
-    // Buttons
+    // Toggle
     const btnA = document.getElementById('btnA');
     const btnB = document.getElementById('btnB');
-
-    function showRoute(route){
-      [A,B].forEach(R=>{ map.removeLayer(R.line); R.labels.forEach(lbl=>lbl && map.removeLayer(lbl)); });
-      map.addLayer(route.line); route.labels.forEach(lbl=>lbl && map.addLayer(lbl));
-      route.line.bringToFront();
-      map.fitBounds(route.line.getBounds().pad(0.2));
+    function activate(Aon){
+      if(Aon){ btnA.classList.add('active'); btnB.classList.remove('active'); map.addLayer(groupA); map.removeLayer(groupB); map.fitBounds(groupA.getBounds().pad(0.2)); }
+      else   { btnB.classList.add('active'); btnA.classList.remove('active'); map.addLayer(groupB); map.removeLayer(groupA); map.fitBounds(groupB.getBounds().pad(0.2)); }
     }
-
-    // Default: Route A prominent
-    showRoute(A);
-
-    btnA.addEventListener('click', ()=>{ btnA.classList.add('active'); btnB.classList.remove('active'); showRoute(A); });
-    btnB.addEventListener('click', ()=>{ btnB.classList.add('active'); btnA.classList.remove('active'); showRoute(B); });
-
-    // Marker hinzufügen (zuletzt, damit sie auf der Linie liegen)
-    portMarkers.forEach(m=>m.addTo(map));
+    activate(true);
+    btnA.addEventListener('click', ()=>activate(true));
+    btnB.addEventListener('click', ()=>activate(false));
   </script>
 </body>
 </html>
