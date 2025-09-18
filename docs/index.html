@@ -4,20 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tulip Tackers – Markermeer Party-Schleife</title>
-  <!-- Leaflet CSS (ohne SRI, um CDN-SRI-Mismatch auszuschließen) -->
+  <!-- Leaflet core -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    /* Robust: Karte nutzt Viewport-Höhe statt % (verhindert 0px-Höhenprobleme) */
     html, body { height: 100%; margin: 0; }
     #map { height: 100vh; width: 100%; }
-    .legend { position: absolute; bottom: 16px; left: 16px; background: rgba(255,255,255,.92); border: 1px solid #888; border-radius: 8px; padding: 10px 12px; font: 13px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
-    .legend .swatch { display:inline-block; width: 18px; height: 4px; background:#3388ff; margin-right:6px; vertical-align: middle; }
-    .legend .swatch-alt { display:inline-block; width: 18px; height: 4px; background:#3388ff; border-bottom: 2px dashed #3388ff; margin-right:6px; vertical-align: middle; }
-    .leaflet-popup-content { font-size: 14px; }
-    .lbl { background: rgba(255,255,255,.88); border: 1px solid #999; border-radius: 6px; padding: 2px 6px; font-size: 12px; }
-    .toolbar { position:absolute; top:16px; left:50%; transform:translateX(-50%); z-index:1000; background:rgba(255,255,255,.96); border:1px solid #888; border-radius:10px; padding:6px 8px; font: 13px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
-    .toolbar button { cursor:pointer; border:1px solid #888; background:#fff; padding:6px 10px; border-radius:8px; margin:0 4px; }
-    .toolbar button.active { background:#3388ff; color:#fff; border-color:#2a6bd6; }
+    .toolbar { position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:1000; background:rgba(255,255,255,.96); border:1px solid #c6c6c6; box-shadow:0 2px 10px rgba(0,0,0,.08); border-radius:14px; padding:6px; font: 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .toolbar button { cursor:pointer; border:1px solid #c6c6c6; background:#fff; padding:8px 12px; border-radius:10px; margin:0 4px; }
+    .toolbar button.active { background:#2b7bff; color:#fff; border-color:#2a6bd6; }
+    .legend { position: absolute; bottom: 14px; left: 14px; background: rgba(255,255,255,.94); border: 1px solid #c6c6c6; border-radius: 10px; padding: 10px 12px; font: 13px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+    .legend .swatch { display:inline-block; width: 22px; height: 5px; background:#1565c0; margin-right:6px; vertical-align: middle; border-radius:3px; box-shadow:0 0 0 2px rgba(21,101,192,.25); }
+    .legend .swatch-alt { display:inline-block; width: 22px; height: 5px; background:#1565c0; border-bottom: 2px dashed #1565c0; margin-right:6px; vertical-align: middle; }
+    .lbl { background: rgba(255,255,255,.93); border: 1px solid #bdbdbd; border-radius: 6px; padding: 4px 6px; font-size: 12px; box-shadow:0 1px 6px rgba(0,0,0,.08); }
+    .lbl small { color:#555; }
   </style>
 </head>
 <body>
@@ -33,10 +32,10 @@
     Zeiten je Segment: Bereich für <b>7–6 kn</b>
   </div>
 
-  <!-- Leaflet JS (ohne SRI) -->
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // --- Konfiguration ---
+    // ---- Daten ----
     const ports = {
       Lemmer:    [52.846, 5.708],
       Hoorn:     [52.643, 5.071],
@@ -45,7 +44,15 @@
       Urk:       [52.664, 5.604]
     };
 
-    // Ca. Distanzen in sm (Segelrouten, nicht Luftlinie)
+    const harborInfo = {
+      Lemmer: 'Base: Enjoy Sailing',
+      Hoorn: 'Häfen: Grashaven (komfortabel) • Binnenhaven/Oude Doelenkade (zentral)',
+      Amsterdam: 'Häfen: Sixhaven (zentral, eng) • Amsterdam Marina (groß, ruhig)',
+      Volendam: 'Hafen: Marina Volendam (groß, nahe Partymeile)',
+      Urk: 'Hafen: Urkerhaven (gemütlich, Fischeratmosphäre)'
+    };
+
+    // Distanzen (NM) und Zeiten
     const dNM = {
       'Lemmer-Hoorn': 35,
       'Hoorn-Amsterdam': 30,
@@ -58,78 +65,72 @@
     const routeA = ['Lemmer','Hoorn','Amsterdam','Volendam','Lemmer'];
     const routeB = ['Amsterdam','Urk','Lemmer'];
 
-    // Map
-    const avg = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
-    const center = [avg(Object.values(ports).map(p=>p[0])), avg(Object.values(ports).map(p=>p[1]))];
-    const map = L.map('map');
+    // ---- Karte ----
+    const map = L.map('map', { zoomControl: true });
 
-    // Tile-Layer zuerst laden
-    const tile = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '&copy; OpenStreetMap-Mitwirkende'
+    // Basemap: Carto Voyager (klarer, moderner Look)
+    const voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+      maxZoom: 20,
+      attribution: '&copy; OpenStreetMap-Mitwirkende, &copy; CARTO'
     }).addTo(map);
 
-    function timeRange(nm) { // Stunden bei 7–6 kn
-      const t7 = (nm/7).toFixed(1);
-      const t6 = (nm/6).toFixed(1);
-      return `${t7}–${t6} h (7–6 kn)`;
-    }
+    // Maßstab
+    L.control.scale({ imperial: false }).addTo(map);
 
-    function midPoint(a, b) { return [ (a[0]+b[0])/2, (a[1]+b[1])/2 ]; }
+    // Marker
+    const portMarkers = Object.entries(ports).map(([name, latlng]) =>
+      L.marker(latlng).bindPopup(`<b>${name}</b><br/>${harborInfo[name] || ''}`).bindTooltip(name)
+    );
 
-    const harborInfo = {
-      Lemmer: 'Base: Enjoy Sailing',
-      Hoorn: 'Häfen: Grashaven (komfortabel) • Binnenhaven/Oude Doelenkade (zentral)',
-      Amsterdam: 'Häfen: Sixhaven (zentral, eng) • Amsterdam Marina (groß, ruhig)',
-      Volendam: 'Hafen: Marina Volendam (groß, nahe Partymeile)',
-      Urk: 'Hafen: Urkerhaven (gemütlich, Fischeratmosphäre)'
-    };
+    // Helpers
+    function timeRange(nm){ const t7=(nm/7).toFixed(1), t6=(nm/6).toFixed(1); return `${t7}–${t6} h (7–6 kn)`; }
+    function segKey(a,b){ return dNM[`${a}-${b}`] || dNM[`${b}-${a}`]; }
 
-    Object.entries(ports).forEach(([name, latlng]) => {
-      L.marker(latlng).addTo(map)
-        .bindPopup(`<b>${name}</b><br/>${harborInfo[name] || ''}`)
-        .bindTooltip(name);
-    });
-
-    function segmentLabel(aName, bName) {
-      const key1 = `${aName}-${bName}`;
-      const key2 = `${bName}-${aName}`;
-      const nm = dNM[key1] || dNM[key2] || null;
-      if (!nm) return null;
-      const a = ports[aName];
-      const b = ports[bName];
-      const pos = midPoint(a,b);
-      return L.marker(pos, { interactive:false, icon: L.divIcon({ className: 'lbl', html: `${aName} → ${bName}<br/>${nm} sm · ${timeRange(nm)}` }) });
-    }
-
-    function makeRoute(names, dashed=false) {
+    function makeRoute(names, dashed=false){
       const coords = names.map(n => ports[n]);
-      const line = L.polyline(coords, { color: '#3388ff', weight:4, opacity:0.9, dashArray: dashed ? '8,6' : null });
-      const labels = names.slice(0,-1).map((n, i) => segmentLabel(n, names[i+1]));
+      const line = L.polyline(coords, { color:'#1565c0', weight:5, opacity:0.95, lineCap:'round', lineJoin:'round', dashArray: dashed ? '10,8' : null });
+      const labels = names.slice(0,-1).map((a,i)=>{
+        const b = names[i+1];
+        const nm = segKey(a,b); if(!nm) return null;
+        const midLat = (ports[a][0]+ports[b][0])/2; const midLng = (ports[a][1]+ports[b][1])/2;
+        const html = `<div class="lbl"><b>${a} → ${b}</b><br/>${nm} sm · <small>${timeRange(nm)}</small></div>`;
+        return L.marker([midLat, midLng], {interactive:false, icon:L.divIcon({className:'', html})});
+      });
       return { line, labels };
     }
 
     const A = makeRoute(routeA, false);
     const B = makeRoute(routeB, true);
 
-    function showRoute(group) {
-      [A, B].forEach(R => {
-        if (map.hasLayer(R.line)) map.removeLayer(R.line);
-        R.labels.forEach(lbl => { if (lbl && map.hasLayer(lbl)) map.removeLayer(lbl); });
-      });
-      map.addLayer(group.line);
-      group.labels.forEach(lbl => lbl && map.addLayer(lbl));
-      map.fitBounds(group.line.getBounds().pad(0.15));
-    }
+    // Alle Layer in FeatureGroup (für schönes Fit)
+    const group = L.featureGroup([
+      ...portMarkers,
+      A.line, ...A.labels,
+      B.line, ...B.labels
+    ]).addTo(map);
+
+    // Erstes Fit (gesamtes Revier sauber im Bild)
+    map.fitBounds(group.getBounds().pad(0.15));
 
     // Buttons
     const btnA = document.getElementById('btnA');
     const btnB = document.getElementById('btnB');
-    btnA.addEventListener('click', () => { btnA.classList.add('active'); btnB.classList.remove('active'); showRoute(A); });
-    btnB.addEventListener('click', () => { btnB.classList.add('active'); btnA.classList.remove('active'); showRoute(B); });
 
-    // Initial anzeigen
+    function showRoute(route){
+      [A,B].forEach(R=>{ map.removeLayer(R.line); R.labels.forEach(lbl=>lbl && map.removeLayer(lbl)); });
+      map.addLayer(route.line); route.labels.forEach(lbl=>lbl && map.addLayer(lbl));
+      route.line.bringToFront();
+      map.fitBounds(route.line.getBounds().pad(0.2));
+    }
+
+    // Default: Route A prominent
     showRoute(A);
+
+    btnA.addEventListener('click', ()=>{ btnA.classList.add('active'); btnB.classList.remove('active'); showRoute(A); });
+    btnB.addEventListener('click', ()=>{ btnB.classList.add('active'); btnA.classList.remove('active'); showRoute(B); });
+
+    // Marker hinzufügen (zuletzt, damit sie auf der Linie liegen)
+    portMarkers.forEach(m=>m.addTo(map));
   </script>
 </body>
 </html>
