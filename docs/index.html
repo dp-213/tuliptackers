@@ -45,22 +45,22 @@
     .legend .swatch, .legend .swatch-alt { display: inline-block; width: 24px; height: 6px; margin-right: 6px; vertical-align: middle; border-radius: 3px; box-shadow: 0 0 0 1px rgba(21, 101, 192, 0.25); }
     .legend .swatch { background: #1565c0; }
     .legend .swatch-alt { background: #1565c0; border-bottom: 2px dashed #1565c0; box-shadow: none; }
-    .leaflet-tooltip.route-tooltip {
+    .route-label {
       background: rgba(255, 255, 255, 0.92);
       border: 1px solid rgba(37, 102, 233, 0.35);
       border-radius: 10px;
       box-shadow: 0 12px 28px rgba(16, 38, 82, 0.22);
       color: #10264d;
       padding: 6px 10px;
-      pointer-events: none;
       text-align: center;
       font-size: clamp(11px, 0.8vw + 8px, 14px);
       line-height: 1.35;
       font-weight: 500;
+      white-space: nowrap;
     }
-    .leaflet-tooltip.route-tooltip .tooltip-heading { font-weight: 600; }
-    .leaflet-tooltip.route-tooltip .tooltip-meta { font-size: 0.85em; color: #486186; }
-    .leaflet-tooltip.route-tooltip.is-active {
+    .route-label .tooltip-heading { font-weight: 600; }
+    .route-label .tooltip-meta { font-size: 0.85em; color: #486186; }
+    .route-label.is-active {
       border-color: rgba(37, 102, 233, 0.6);
       box-shadow: 0 16px 32px rgba(25, 68, 130, 0.32);
     }
@@ -406,15 +406,13 @@
         });
         polyline.bindTooltip(`${leg.from} → ${leg.to} · ${leg.distanceNm} sm`, { sticky: true });
         const center = polyline.getCenter ? polyline.getCenter() : polyline.getBounds().getCenter();
-        const tooltipHtml = `<div class="tooltip-heading">${leg.from} → ${leg.to}</div><div class="tooltip-meta">${leg.distanceNm} sm · ${durationRange(leg.duration)}</div><div class="tooltip-meta">@ 5–7 kn SOG</div>`;
-        const tooltip = L.tooltip({
-          permanent: true,
-          direction: 'center',
-          className: 'route-tooltip',
-          opacity: 1
-        }).setContent(tooltipHtml).setLatLng(center);
+        const labelHtml = `<div class="route-label"><div class="tooltip-heading">${leg.from} → ${leg.to}</div><div class="tooltip-meta">${leg.distanceNm} sm · ${durationRange(leg.duration)}</div><div class="tooltip-meta">@ 5–7 kn SOG</div></div>`;
+        const label = L.marker(center, {
+          interactive: false,
+          icon: L.divIcon({ className: '', html: labelHtml, iconSize: null })
+        });
         leg.layer = polyline;
-        leg.tooltip = tooltip;
+        leg.labelMarker = label;
         polyline.on('mouseover', () => highlightLeg(route.id, legIndex));
         polyline.on('mouseout', () => {
           if (highlightedLeg.routeId === route.id && highlightedLeg.index === legIndex) {
@@ -429,7 +427,7 @@
             if (item) item.focus();
           }
         });
-        layers.push(polyline, tooltip);
+        layers.push(polyline, label);
       });
       routeGroups[route.id] = L.featureGroup(layers);
     });
@@ -483,9 +481,10 @@
       if (leg?.layer) {
         leg.layer.setStyle({ weight: 4, opacity: 0.9 });
       }
-      if (leg?.tooltip) {
-        const el = leg.tooltip.getElement();
-        if (el) el.classList.remove('is-active');
+      if (leg?.labelMarker) {
+        const el = leg.labelMarker.getElement();
+        const inner = el ? el.querySelector('.route-label') : null;
+        if (inner) inner.classList.remove('is-active');
       }
       if (highlightedLeg.routeId === activeRouteId && detailsEl) {
         const item = detailsEl.querySelector(`li[data-leg-index="${highlightedLeg.index}"]`);
@@ -507,9 +506,10 @@
         const item = detailsEl.querySelector(`li[data-leg-index="${index}"]`);
         if (item) item.classList.add('is-active');
       }
-      if (leg.tooltip) {
-        const el = leg.tooltip.getElement();
-        if (el) el.classList.add('is-active');
+      if (leg.labelMarker) {
+        const el = leg.labelMarker.getElement();
+        const inner = el ? el.querySelector('.route-label') : null;
+        if (inner) inner.classList.add('is-active');
       }
     }
 
