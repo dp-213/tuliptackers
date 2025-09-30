@@ -25,10 +25,15 @@
     .leg-list li { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(37, 102, 233, 0.12); border-radius: 12px; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; outline: none; }
     .leg-list li:hover, .leg-list li:focus { border-color: rgba(37, 102, 233, 0.4); box-shadow: 0 8px 18px rgba(25, 68, 130, 0.16); transform: translateY(-1px); }
     .leg-list li.is-active { border-color: rgba(37, 102, 233, 0.55); box-shadow: 0 10px 24px rgba(25, 68, 130, 0.2); transform: translateY(-2px); }
+    .leg-line { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .leg-name { font-weight: 600; color: #0f2350; }
     .leg-meta { display: flex; justify-content: space-between; font-size: 13px; color: #486186; }
     .leg-distance { font-weight: 600; color: #123a80; }
     .leg-duration { font-variant-numeric: tabular-nums; }
+    .leg-depth { font-size: 12px; font-weight: 600; color: #1b4fd8; background: rgba(27, 79, 216, 0.12); padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .leg-via { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; font-size: 11px; background: rgba(27, 79, 216, 0.1); color: #244a99; font-weight: 600; letter-spacing: 0.03em; }
+    .leg-notes { margin: 8px 0 0; font-size: 12px; color: #486186; line-height: 1.45; }
     .map-wrap { position: relative; flex: 1; }
     #map { height: 100%; width: 100%; min-height: 100vh; background: #e4edf8; }
     .toolbar { position: absolute; top: 24px; right: 28px; z-index: 1000; display: flex; gap: 8px; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(30, 60, 120, 0.18); box-shadow: 0 10px 25px rgba(16, 40, 84, 0.12); border-radius: 14px; padding: 6px; backdrop-filter: blur(4px); }
@@ -40,21 +45,46 @@
     .legend .swatch, .legend .swatch-alt { display: inline-block; width: 24px; height: 6px; margin-right: 6px; vertical-align: middle; border-radius: 3px; box-shadow: 0 0 0 1px rgba(21, 101, 192, 0.25); }
     .legend .swatch { background: #1565c0; }
     .legend .swatch-alt { background: #1565c0; border-bottom: 2px dashed #1565c0; box-shadow: none; }
-    .lbl { background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(37, 102, 233, 0.25); border-radius: 8px; padding: 4px 7px; font-size: 12px; color: #1a2d4f; box-shadow: 0 6px 18px rgba(16, 38, 82, 0.2); white-space: nowrap; }
-    .lbl small { color: #486186; }
+    .leaflet-tooltip.route-tooltip {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(37, 102, 233, 0.35);
+      border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(16, 38, 82, 0.22);
+      color: #10264d;
+      padding: 6px 10px;
+      pointer-events: none;
+      text-align: center;
+      font-size: clamp(11px, 0.8vw + 8px, 14px);
+      line-height: 1.35;
+      font-weight: 500;
+    }
+    .leaflet-tooltip.route-tooltip .tooltip-heading { font-weight: 600; }
+    .leaflet-tooltip.route-tooltip .tooltip-meta { font-size: 0.85em; color: #486186; }
+    .leaflet-tooltip.route-tooltip.is-active {
+      border-color: rgba(37, 102, 233, 0.6);
+      box-shadow: 0 16px 32px rgba(25, 68, 130, 0.32);
+    }
     @media (max-width: 900px) {
       .app { flex-direction: column; }
-      .sidebar { width: 100%; max-width: none; box-shadow: none; border-bottom: 1px solid rgba(30, 60, 120, 0.12); border-radius: 0; }
-      .map-wrap { min-height: 70vh; }
+      .sidebar { order: 2; width: 100%; max-width: none; box-shadow: none; border-bottom: 1px solid rgba(30, 60, 120, 0.12); border-radius: 0; padding: 22px 18px 28px; }
+      .map-wrap { order: 1; min-height: 68vh; }
       #map { min-height: 70vh; }
       .toolbar { left: 50%; right: auto; transform: translateX(-50%); top: 18px; }
       .legend { left: 50%; right: auto; transform: translateX(-50%); bottom: 18px; }
     }
     @media (max-width: 520px) {
+      .sidebar { padding: 18px 16px 24px; gap: 16px; }
+      .route-card { padding: 16px; border-radius: 16px; }
+      .route-card__header h2 { font-size: 16px; }
+      .badge { font-size: 10px; }
+      .leg-list li { padding: 10px; }
       .toolbar { flex-wrap: wrap; gap: 4px; padding: 6px 10px; }
       .toolbar button { flex: 1 0 120px; }
       .legend { width: calc(100% - 32px); max-width: none; }
       .leg-meta { flex-direction: column; gap: 2px; align-items: flex-start; }
+      .leg-line { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .leg-depth { align-self: flex-start; }
+      .chip { font-size: 10px; padding: 3px 7px; }
       #map { min-height: 60vh; }
     }
   </style>
@@ -65,7 +95,7 @@
       <h1>Tulip Tackers</h1>
       <p class="intro">Markermeer Routenplanung mit echten See-Distanzen. Wähle deine Party-Schleife oder den Urk-Umweg und sieh sofort, wie viele Seemeilen pro Schlag anstehen.</p>
       <div id="routeDetails" class="route-details"></div>
-      <div class="sea-note">Distanzberechnung via Haversine über alle Wegpunkte. Reisezeiten kalkuliert für 6–7 kn. Basemap: Carto Voyager &amp; OSM · Overlay: OpenSeaMap.</div>
+      <div class="sea-note">Distanzberechnung via Haversine über alle Wegpunkte. Reisezeiten kalkuliert für 5–7 kn Fahrt über Grund. Basemap: Carto Voyager &amp; OSM · Overlay: OpenSeaMap.</div>
     </aside>
     <div class="map-wrap">
       <div id="map"></div>
@@ -93,6 +123,83 @@
       Urk:       [52.664, 5.604]
     };
 
+    const navPoints = {
+      'Prinses Margrietsluis': [52.85265, 5.677124],
+      'NM 12B': [52.825206, 5.636047],
+      'NM 11A': [52.821389, 5.634869],
+      'NM 8': [52.803467, 5.612114],
+      'NM 6': [52.7959, 5.60454],
+      'LC 9': [52.820206, 5.305619],
+      'LC 7': [52.828322, 5.306181],
+      'LC 5': [52.836833, 5.307072],
+      'LC 3': [52.846269, 5.306536],
+      'LC 1': [52.8557, 5.30605],
+      'KG 1': [52.74015, 5.2898],
+      'KG 6': [52.682783, 5.277267],
+      'KG 13': [52.704997, 5.305953],
+      'KG 23': [52.686394, 5.284839],
+      'KG 27': [52.685333, 5.2791],
+      'KG 31': [52.672153, 5.25845],
+      'KG 35': [52.656456, 5.239697],
+      'SD 24': [52.600603, 5.028444],
+      'SD 20': [52.601531, 5.034989],
+      'SD 16': [52.603589, 5.050575],
+      'MO 12': [52.462719, 5.043981],
+      'MO 6': [52.463475, 5.065831],
+      'GZ 16': [52.467739, 5.085603],
+      'GZ 12': [52.476981, 5.086086],
+      'PM 7': [52.488592, 5.070161],
+      'PM 5': [52.488603, 5.073536],
+      'MG 21': [52.343806, 5.072944],
+      'MG 17': [52.343928, 5.081764],
+      'PG 17': [52.371131, 4.982225],
+      'PG 16': [52.368492, 4.985978],
+      'D 6': [52.376067, 4.993133],
+      'B': [52.381286, 4.935364],
+      'IJ 5': [52.381867, 4.937517],
+      'EZ 9': [52.592881, 5.502047],
+      'EZ 8': [52.578542, 5.498144],
+      'EZ 6': [52.588789, 5.513464],
+      'EZ 4-MR25': [52.598094, 5.527567],
+      'EZ 2': [52.608989, 5.543333],
+      'EZ 1': [52.655164, 5.542392],
+      'ET 21': [52.689339, 5.404972],
+      'ET 41': [52.669269, 5.470297],
+      'ET 45': [52.665253, 5.483361],
+      'ET 55': [52.655081, 5.478606],
+      'ET 63': [52.646797, 5.454786],
+      'ET 69': [52.640586, 5.436944],
+      'UR 8': [52.677867, 5.580094],
+      'UR 6': [52.681139, 5.583156],
+      'UR 4': [52.684061, 5.588464],
+      'UR 2': [52.685586, 5.591]
+    };
+
+    const resolvePoint = ref => {
+      if (Array.isArray(ref)) return ref;
+      if (ports[ref]) return ports[ref];
+      if (navPoints[ref]) return navPoints[ref];
+      console.warn('Unknown navigation point', ref);
+      return null;
+    };
+
+    const resolvePath = path => path.map(resolvePoint).filter(Boolean);
+
+    const sampleWaypoints = (names, max = 4) => {
+      if (!Array.isArray(names) || names.length === 0) return [];
+      if (names.length <= max) return names;
+      const results = [];
+      const step = (names.length - 1) / (max - 1);
+      for (let i = 0; i < max; i += 1) {
+        const idx = Math.min(names.length - 1, Math.round(i * step));
+        const candidate = names[idx];
+        if (!results.includes(candidate)) {
+          results.push(candidate);
+        }
+      }
+      return results;
+    };
+
     // ---- Route-Definition mit Waypoints ----
     const NM_FROM_KM = 1 / 1.852;
     const toRad = v => v * Math.PI / 180;
@@ -113,6 +220,8 @@
       return km * NM_FROM_KM;
     };
 
+    const SPEED_RANGE = { min: 5, max: 7 };
+
     const routes = {
       A: {
         id: 'A',
@@ -122,37 +231,57 @@
         dashed: false,
         legs: [
           {
-            from: 'Lemmer', to: 'Hoorn',
-            points: [
-              ports.Lemmer,
-              [52.820, 5.530], [52.750, 5.350], [52.662, 5.200],
-              ports.Hoorn
+            from: 'Lemmer',
+            to: 'Hoorn',
+            depth: '≥3 m Fahrwasser',
+            notes: 'Lemmergeul über NM- und LC-Tonnen, weiter via KG/SD bis Hoorn.',
+            path: [
+              'Lemmer',
+              'Prinses Margrietsluis', 'NM 12B', 'NM 11A', 'NM 8', 'NM 6',
+              'LC 9', 'LC 7', 'LC 5', 'LC 3', 'LC 1',
+              'KG 1', 'KG 13', 'KG 23', 'KG 27', 'KG 31', 'KG 35',
+              'SD 24', 'SD 20', 'SD 16',
+              'Hoorn'
             ]
           },
           {
-            from: 'Hoorn', to: 'Amsterdam',
-            points: [
-              ports.Hoorn,
-              [52.610, 5.100], [52.580, 5.050], [52.510, 5.030],
-              [52.450, 5.000], [52.400, 4.950],
-              [52.372, 4.985],
-              ports.Amsterdam
+            from: 'Hoorn',
+            to: 'Amsterdam',
+            depth: '≥3 m',
+            notes: 'Hoornse Hop nach Süden, Markermeer-Fahrwasser via SD/MO/PG.',
+            path: [
+              'Hoorn',
+              'SD 24', 'SD 20', 'SD 16',
+              'MO 6', 'MO 12', 'GZ 16', 'GZ 12', 'PM 7', 'PM 5',
+              'PG 17', 'PG 16', 'D 6', 'IJ 5', 'B',
+              'Amsterdam'
             ]
           },
           {
-            from: 'Amsterdam', to: 'Volendam',
-            points: [
-              ports.Amsterdam,
-              [52.372, 4.985], [52.470, 5.030], [52.495, 5.060],
-              ports.Volendam
+            from: 'Amsterdam',
+            to: 'Volendam',
+            depth: '≥3 m',
+            notes: 'IJmeer raus über PG-Tonnen, dann Markermeer via PM/MO nach Volendam.',
+            path: [
+              'Amsterdam',
+              'PG 16', 'PG 17', 'D 6',
+              'PM 5', 'PM 7', 'GZ 16', 'MO 6',
+              'Volendam'
             ]
           },
           {
-            from: 'Volendam', to: 'Lemmer',
-            points: [
-              ports.Volendam,
-              [52.530, 5.100], [52.600, 5.200], [52.680, 5.400], [52.780, 5.550],
-              ports.Lemmer
+            from: 'Volendam',
+            to: 'Lemmer',
+            depth: '≥3 m',
+            notes: 'Markermeer Nordkurs via SD/KG, dann LC/NM Richtung Lemmer.',
+            path: [
+              'Volendam',
+              'PM 5', 'MO 6', 'SD 16', 'SD 20', 'SD 24',
+              'KG 35', 'KG 31', 'KG 27', 'KG 23', 'KG 13', 'KG 1',
+              'LC 1', 'LC 3', 'LC 5', 'LC 7', 'LC 9',
+              'NM 6', 'NM 8', 'NM 11A', 'NM 12B',
+              'Prinses Margrietsluis',
+              'Lemmer'
             ]
           }
         ]
@@ -165,19 +294,33 @@
         dashed: true,
         legs: [
           {
-            from: 'Amsterdam', to: 'Urk',
-            points: [
-              ports.Amsterdam,
-              [52.372, 4.985], [52.520, 5.050], [52.600, 5.250], [52.630, 5.350],
-              ports.Urk
+            from: 'Amsterdam',
+            to: 'Urk',
+            depth: '≥3 m',
+            notes: 'Amsterdam ins Markermeer, dann via EZ-/ET-Tonnen Richtung Urk.',
+            path: [
+              'Amsterdam',
+              'PG 16', 'PG 17', 'D 6',
+              'PM 5', 'PM 7', 'GZ 16', 'MO 6',
+              'SD 16', 'SD 20', 'SD 24',
+              'ET 63', 'ET 55', 'ET 45', 'ET 41', 'ET 21',
+              'EZ 9', 'EZ 6', 'EZ 4-MR25', 'EZ 2', 'EZ 1',
+              'UR 8', 'UR 6', 'UR 4', 'UR 2',
+              'Urk'
             ]
           },
           {
-            from: 'Urk', to: 'Lemmer',
-            points: [
-              ports.Urk,
-              [52.720, 5.520], [52.790, 5.600],
-              ports.Lemmer
+            from: 'Urk',
+            to: 'Lemmer',
+            depth: '≥3 m',
+            notes: 'Von Urk nach Norden und zurück auf Lemmergeul.',
+            path: [
+              'Urk',
+              'UR 2', 'UR 4', 'UR 6', 'UR 8',
+              'EZ 1', 'EZ 2', 'EZ 4-MR25', 'EZ 6', 'EZ 8',
+              'NM 6', 'NM 8', 'NM 11A', 'NM 12B',
+              'Prinses Margrietsluis',
+              'Lemmer'
             ]
           }
         ]
@@ -187,18 +330,25 @@
     Object.values(routes).forEach(route => {
       let totalNm = 0;
       route.legs.forEach(leg => {
+        leg.points = resolvePath(leg.path);
+        leg.viaNames = leg.path.filter(name => {
+          if (Array.isArray(name)) return false;
+          if (name === leg.from || name === leg.to) return false;
+          return !ports[name];
+        });
+        leg.viaSample = sampleWaypoints(leg.viaNames, 4);
         const nm = distanceNm(leg.points);
         leg.distanceNm = parseFloat(nm.toFixed(1));
         leg.duration = {
-          fast: (leg.distanceNm / 7).toFixed(1),
-          slow: (leg.distanceNm / 6).toFixed(1)
+          minHours: (leg.distanceNm / SPEED_RANGE.max).toFixed(1),
+          maxHours: (leg.distanceNm / SPEED_RANGE.min).toFixed(1)
         };
         totalNm += leg.distanceNm;
       });
       route.totalNm = parseFloat(totalNm.toFixed(1));
       route.duration = {
-        fast: (route.totalNm / 7).toFixed(1),
-        slow: (route.totalNm / 6).toFixed(1)
+        minHours: (route.totalNm / SPEED_RANGE.max).toFixed(1),
+        maxHours: (route.totalNm / SPEED_RANGE.min).toFixed(1)
       };
     });
 
@@ -240,27 +390,46 @@
       L.marker(latlng).bindPopup(`<b>${name}</b><br/>${harborInfo[name]||''}`).bindTooltip(name)
     );
 
-    const durationRange = duration => `${duration.fast}–${duration.slow} h`;
+    const durationRange = duration => `${duration.minHours}–${duration.maxHours} h`;
 
     const routeGroups = {};
     Object.values(routes).forEach(route => {
       const layers = [];
-      route.legs.forEach(leg => {
+      route.legs.forEach((leg, legIndex) => {
         const polyline = L.polyline(leg.points, {
           color: route.color,
-          weight: 5,
-          opacity: 0.95,
+          weight: 4,
+          opacity: 0.9,
           lineCap: 'round',
           lineJoin: 'round',
           dashArray: route.dashed ? '10,8' : null
         });
         polyline.bindTooltip(`${leg.from} → ${leg.to} · ${leg.distanceNm} sm`, { sticky: true });
-        const html = `<div class="lbl"><b>${leg.from} → ${leg.to}</b><br/>${leg.distanceNm} sm · <small>${durationRange(leg.duration)} @ 7–6 kn</small></div>`;
-        const center = polyline.getBounds().getCenter();
-        const label = L.marker(center, { interactive: false, icon: L.divIcon({ className: '', html }) });
+        const center = polyline.getCenter ? polyline.getCenter() : polyline.getBounds().getCenter();
+        const tooltipHtml = `<div class="tooltip-heading">${leg.from} → ${leg.to}</div><div class="tooltip-meta">${leg.distanceNm} sm · ${durationRange(leg.duration)}</div><div class="tooltip-meta">@ 5–7 kn SOG</div>`;
+        const tooltip = L.tooltip({
+          permanent: true,
+          direction: 'center',
+          className: 'route-tooltip',
+          opacity: 1
+        }).setContent(tooltipHtml).setLatLng(center);
         leg.layer = polyline;
-        leg.labelMarker = label;
-        layers.push(polyline, label);
+        leg.tooltip = tooltip;
+        polyline.on('mouseover', () => highlightLeg(route.id, legIndex));
+        polyline.on('mouseout', () => {
+          if (highlightedLeg.routeId === route.id && highlightedLeg.index === legIndex) {
+            clearHighlightedLeg();
+          }
+        });
+        polyline.on('click', () => {
+          if (route.id !== activeRouteId) return;
+          highlightLeg(route.id, legIndex);
+          if (detailsEl) {
+            const item = detailsEl.querySelector(`li[data-leg-index="${legIndex}"]`);
+            if (item) item.focus();
+          }
+        });
+        layers.push(polyline, tooltip);
       });
       routeGroups[route.id] = L.featureGroup(layers);
     });
@@ -275,21 +444,32 @@
 
     function renderRouteDetails(route) {
       if (!detailsEl) return;
-      const list = route.legs.map((leg, idx) => `
-        <li data-leg-index="${idx}" tabindex="0">
-          <div class="leg-name">${leg.from} → ${leg.to}</div>
-          <div class="leg-meta">
-            <span class="leg-distance">${leg.distanceNm} sm</span>
-            <span class="leg-duration">${durationRange(leg.duration)} · 7–6 kn</span>
-          </div>
-        </li>
-      `).join('');
+      const list = route.legs.map((leg, idx) => {
+        const via = (leg.viaSample || []).map(name => `<span class="chip">${name}</span>`).join('');
+        const notes = leg.notes ? `<p class="leg-notes">${leg.notes}</p>` : '';
+        return `
+          <li data-leg-index="${idx}" tabindex="0">
+            <div class="leg-line">
+              <div>
+                <div class="leg-name">${leg.from} → ${leg.to}</div>
+                <div class="leg-meta">
+                  <span class="leg-distance">${leg.distanceNm} sm</span>
+                  <span class="leg-duration">${durationRange(leg.duration)} · 5–7 kn</span>
+                </div>
+              </div>
+              <span class="leg-depth">${leg.depth || ''}</span>
+            </div>
+            ${via ? `<div class="leg-via" aria-label="Wegpunkte">${via}</div>` : ''}
+            ${notes}
+          </li>
+        `;
+      }).join('');
       detailsEl.innerHTML = `
         <div class="route-card">
           <div class="route-card__header">
             <span class="badge">${route.label}</span>
             <h2>${route.title}</h2>
-            <p>${route.totalNm} sm gesamt · ${durationRange(route.duration)} @ 7–6 kn</p>
+            <p>${route.totalNm} sm gesamt · ${durationRange(route.duration)} @ 5–7 kn</p>
           </div>
           <ul class="leg-list">${list}</ul>
         </div>
@@ -301,7 +481,11 @@
       const route = routes[highlightedLeg.routeId];
       const leg = route?.legs?.[highlightedLeg.index];
       if (leg?.layer) {
-        leg.layer.setStyle({ weight: 5, opacity: 0.95 });
+        leg.layer.setStyle({ weight: 4, opacity: 0.9 });
+      }
+      if (leg?.tooltip) {
+        const el = leg.tooltip.getElement();
+        if (el) el.classList.remove('is-active');
       }
       if (highlightedLeg.routeId === activeRouteId && detailsEl) {
         const item = detailsEl.querySelector(`li[data-leg-index="${highlightedLeg.index}"]`);
@@ -322,6 +506,10 @@
       if (routeId === activeRouteId && detailsEl) {
         const item = detailsEl.querySelector(`li[data-leg-index="${index}"]`);
         if (item) item.classList.add('is-active');
+      }
+      if (leg.tooltip) {
+        const el = leg.tooltip.getElement();
+        if (el) el.classList.add('is-active');
       }
     }
 
@@ -357,6 +545,11 @@
         highlightLeg(activeRouteId, Number(item.dataset.legIndex));
       });
       detailsEl.addEventListener('focusin', event => {
+        const item = event.target.closest('li[data-leg-index]');
+        if (!item) return;
+        highlightLeg(activeRouteId, Number(item.dataset.legIndex));
+      });
+      detailsEl.addEventListener('click', event => {
         const item = event.target.closest('li[data-leg-index]');
         if (!item) return;
         highlightLeg(activeRouteId, Number(item.dataset.legIndex));
