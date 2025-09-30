@@ -405,7 +405,7 @@
           dashArray: route.dashed ? '10,8' : null
         });
         polyline.bindTooltip(`${leg.from} → ${leg.to} · ${leg.distanceNm} sm`, { sticky: true });
-        const center = polyline.getCenter ? polyline.getCenter() : polyline.getBounds().getCenter();
+        const center = polyline.getBounds().getCenter();
         const labelHtml = `<div class="route-label"><div class="tooltip-heading">${leg.from} → ${leg.to}</div><div class="tooltip-meta">${leg.distanceNm} sm · ${durationRange(leg.duration)}</div><div class="tooltip-meta">@ 5–7 kn SOG</div></div>`;
         const label = L.marker(center, {
           interactive: false,
