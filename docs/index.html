@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tulip Tackers – Markermeer Party-Schleife (Seekarte, stabil)</title>
+  <title>Tulip Tackers – Markermeer Cruising Loop (Hoorn · Urk)</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { box-sizing: border-box; }
@@ -93,20 +93,20 @@
   <div class="app">
     <aside class="sidebar">
       <h1>Tulip Tackers</h1>
-      <p class="intro">Markermeer Routenplanung mit echten See-Distanzen. Wähle deine Party-Schleife oder den Urk-Umweg und sieh sofort, wie viele Seemeilen pro Schlag anstehen.</p>
+      <p class="intro">Markermeer Routenplanung mit echten See-Distanzen. Wähle die Standard-Schleife via Hoorn oder die Enkhuizen-Variante und sieh sofort, wie viele Seemeilen pro Schlag anstehen.</p>
       <div id="routeDetails" class="route-details"></div>
       <div class="sea-note">Distanzberechnung via Haversine über alle Wegpunkte. Reisezeiten kalkuliert für 5–7 kn Fahrt über Grund. Basemap: Carto Voyager &amp; OSM · Overlay: OpenSeaMap.</div>
     </aside>
     <div class="map-wrap">
       <div id="map"></div>
       <div class="toolbar">
-        <button id="btnA" class="active" title="Zeige Party-Schleife (Volendam)">Route A</button>
-        <button id="btnB" title="Zeige Alternative über Urk">Route B</button>
+        <button id="btnA" class="active" title="Zeige Standardroute via Hoorn">Route A</button>
+        <button id="btnB" title="Zeige Variante via Enkhuizen">Route B</button>
       </div>
       <div class="legend">
         <strong>Tulip Tackers – Seekarte</strong>
-        <span class="swatch"></span> Party-Schleife: Lemmer → Hoorn → Amsterdam → Volendam → Lemmer<br/>
-        <span class="swatch-alt"></span> Alternative: Amsterdam → Urk → Lemmer<br/>
+        <span class="swatch"></span> Route A: Lemmer → Hoorn → Amsterdam → Urk → Lemmer<br/>
+        <span class="swatch-alt"></span> Route B: Lemmer → Enkhuizen → Amsterdam → Urk → Lemmer<br/>
         Basemap: Carto Voyager (Fallback: OSM) · Overlay: OpenSeaMap Seamarks
       </div>
     </div>
@@ -120,6 +120,7 @@
       Hoorn:     [52.643, 5.071],
       Amsterdam: [52.383, 4.900], // grob Sixhaven
       Volendam:  [52.495, 5.073],
+      Enkhuizen: [52.703, 5.294],
       Urk:       [52.664, 5.604]
     };
 
@@ -226,7 +227,7 @@
       A: {
         id: 'A',
         label: 'Route A',
-        title: 'Party-Schleife: Lemmer → Hoorn → Amsterdam → Volendam → Lemmer',
+        title: 'Standard: Lemmer → Hoorn → Amsterdam → Urk → Lemmer',
         color: '#1565c0',
         dashed: false,
         legs: [
@@ -234,7 +235,7 @@
             from: 'Lemmer',
             to: 'Hoorn',
             depth: '≥3 m Fahrwasser',
-            notes: 'Lemmergeul über NM- und LC-Tonnen, weiter via KG/SD bis Hoorn.',
+            notes: 'Tag 1 · Lemmergeul Richtung Hoorn über NM/LC/KG/SD Tonnen.',
             path: [
               'Lemmer',
               'Prinses Margrietsluis', 'NM 12B', 'NM 11A', 'NM 8', 'NM 6',
@@ -248,10 +249,10 @@
             from: 'Hoorn',
             to: 'Amsterdam',
             depth: '≥3 m',
-            notes: 'Hoornse Hop nach Süden, Markermeer-Fahrwasser via SD/MO/PG.',
+            notes: 'Tag 2 · Südkurs durchs Hoornse Hop weiter via MO/PG nach Amsterdam.',
             path: [
               'Hoorn',
-              'SD 24', 'SD 20', 'SD 16',
+              'SD 16', 'SD 20', 'SD 24',
               'MO 6', 'MO 12', 'GZ 16', 'GZ 12', 'PM 7', 'PM 5',
               'PG 17', 'PG 16', 'D 6', 'IJ 5', 'B',
               'Amsterdam'
@@ -259,45 +260,9 @@
           },
           {
             from: 'Amsterdam',
-            to: 'Volendam',
-            depth: '≥3 m',
-            notes: 'IJmeer raus über PG-Tonnen, dann Markermeer via PM/MO nach Volendam.',
-            path: [
-              'Amsterdam',
-              'PG 16', 'PG 17', 'D 6',
-              'PM 5', 'PM 7', 'GZ 16', 'MO 6',
-              'Volendam'
-            ]
-          },
-          {
-            from: 'Volendam',
-            to: 'Lemmer',
-            depth: '≥3 m',
-            notes: 'Markermeer Nordkurs via SD/KG, dann LC/NM Richtung Lemmer.',
-            path: [
-              'Volendam',
-              'PM 5', 'MO 6', 'SD 16', 'SD 20', 'SD 24',
-              'KG 35', 'KG 31', 'KG 27', 'KG 23', 'KG 13', 'KG 1',
-              'LC 1', 'LC 3', 'LC 5', 'LC 7', 'LC 9',
-              'NM 6', 'NM 8', 'NM 11A', 'NM 12B',
-              'Prinses Margrietsluis',
-              'Lemmer'
-            ]
-          }
-        ]
-      },
-      B: {
-        id: 'B',
-        label: 'Route B',
-        title: 'Alternative via Urk: Amsterdam → Urk → Lemmer',
-        color: '#1565c0',
-        dashed: true,
-        legs: [
-          {
-            from: 'Amsterdam',
             to: 'Urk',
             depth: '≥3 m',
-            notes: 'Amsterdam ins Markermeer, dann via EZ-/ET-Tonnen Richtung Urk.',
+            notes: 'Tag 3 · Markermeer-Längstraverse via ET/EZ-Tonnen bis Urk.',
             path: [
               'Amsterdam',
               'PG 16', 'PG 17', 'D 6',
@@ -313,11 +278,85 @@
             from: 'Urk',
             to: 'Lemmer',
             depth: '≥3 m',
-            notes: 'Von Urk nach Norden und zurück auf Lemmergeul.',
+            notes: 'Tag 4 · Zurück nach Lemmer über EZ- und NM-Tonnenkette.',
             path: [
               'Urk',
               'UR 2', 'UR 4', 'UR 6', 'UR 8',
-              'EZ 1', 'EZ 2', 'EZ 4-MR25', 'EZ 6', 'EZ 8',
+              'EZ 1', 'EZ 2', 'EZ 4-MR25', 'EZ 6', 'EZ 8', 'EZ 9',
+              'ET 63', 'ET 55', 'ET 45', 'ET 41', 'ET 21',
+              'SD 24', 'SD 20', 'SD 16',
+              'KG 35', 'KG 31', 'KG 27', 'KG 23', 'KG 13', 'KG 1',
+              'LC 1', 'LC 3', 'LC 5', 'LC 7', 'LC 9',
+              'NM 6', 'NM 8', 'NM 11A', 'NM 12B',
+              'Prinses Margrietsluis',
+              'Lemmer'
+            ]
+          }
+        ]
+      },
+      B: {
+        id: 'B',
+        label: 'Route B',
+        title: 'Variante: Lemmer → Enkhuizen → Amsterdam → Urk → Lemmer',
+        color: '#1565c0',
+        dashed: true,
+        legs: [
+          {
+            from: 'Lemmer',
+            to: 'Enkhuizen',
+            depth: '≥3 m Fahrwasser',
+            notes: 'Tag 1 · Variante mit Stopp in Enkhuizen (Compagnieshaven).',
+            path: [
+              'Lemmer',
+              'Prinses Margrietsluis', 'NM 12B', 'NM 11A', 'NM 8', 'NM 6',
+              'LC 9', 'LC 7', 'LC 5', 'LC 3', 'LC 1',
+              'KG 1', 'KG 13', 'KG 23', 'KG 27', 'KG 31', 'KG 35',
+              'Enkhuizen'
+            ]
+          },
+          {
+            from: 'Enkhuizen',
+            to: 'Amsterdam',
+            depth: '≥3 m',
+            notes: 'Tag 2 · Weiter via Hoornse Hop nach Amsterdam.',
+            path: [
+              'Enkhuizen',
+              'KG 35', 'KG 31', 'KG 27', 'KG 23', 'KG 13', 'KG 1',
+              'SD 24', 'SD 20', 'SD 16',
+              'MO 6', 'MO 12', 'GZ 16', 'GZ 12', 'PM 7', 'PM 5',
+              'PG 17', 'PG 16', 'D 6', 'IJ 5', 'B',
+              'Amsterdam'
+            ]
+          },
+          {
+            from: 'Amsterdam',
+            to: 'Urk',
+            depth: '≥3 m',
+            notes: 'Tag 3 · Gleicher Nordkurs durchs Markermeer bis Urk.',
+            path: [
+              'Amsterdam',
+              'PG 16', 'PG 17', 'D 6',
+              'PM 5', 'PM 7', 'GZ 16', 'MO 6',
+              'SD 16', 'SD 20', 'SD 24',
+              'ET 63', 'ET 55', 'ET 45', 'ET 41', 'ET 21',
+              'EZ 9', 'EZ 6', 'EZ 4-MR25', 'EZ 2', 'EZ 1',
+              'UR 8', 'UR 6', 'UR 4', 'UR 2',
+              'Urk'
+            ]
+          },
+          {
+            from: 'Urk',
+            to: 'Lemmer',
+            depth: '≥3 m',
+            notes: 'Tag 4 · Zurück nach Lemmer über EZ- und NM-Tonnenkette.',
+            path: [
+              'Urk',
+              'UR 2', 'UR 4', 'UR 6', 'UR 8',
+              'EZ 1', 'EZ 2', 'EZ 4-MR25', 'EZ 6', 'EZ 8', 'EZ 9',
+              'ET 63', 'ET 55', 'ET 45', 'ET 41', 'ET 21',
+              'SD 24', 'SD 20', 'SD 16',
+              'KG 35', 'KG 31', 'KG 27', 'KG 23', 'KG 13', 'KG 1',
+              'LC 1', 'LC 3', 'LC 5', 'LC 7', 'LC 9',
               'NM 6', 'NM 8', 'NM 11A', 'NM 12B',
               'Prinses Margrietsluis',
               'Lemmer'
@@ -384,6 +423,7 @@
       Hoorn: 'Grashaven • Binnenhaven/Oude Doelenkade',
       Amsterdam: 'Sixhaven / Amsterdam Marina · Oranjesluizen',
       Volendam: 'Marina Volendam',
+      Enkhuizen: 'Compagnieshaven / Krabbershaven',
       Urk: 'Urkerhaven'
     };
     const portMarkers = Object.entries(ports).map(([name, latlng]) =>
