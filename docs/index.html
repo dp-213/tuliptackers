@@ -116,6 +116,7 @@
         <div class="editor-controls">
           <button id="addFromMapBtn" type="button">+ Wegpunkt via Karte</button>
           <button id="addManualBtn" type="button">+ Wegpunkt manuell</button>
+          <button id="importGpxBtn" type="button">GPX importieren</button>
         </div>
         <div class="waypoint-list" id="waypointList"></div>
         <div class="editor-actions">
@@ -123,6 +124,8 @@
           <button id="saveRouteBtn" type="button">Route speichern</button>
         </div>
       </section>
+
+      <input type="file" id="gpxFileInput" accept=".gpx,application/gpx+xml" style="display:none" />
 
       <section class="saved-routes">
         <h2>Gespeicherte Routen</h2>
@@ -226,6 +229,8 @@
     const routeNameInput = document.getElementById('routeNameInput');
     const addFromMapBtn = document.getElementById('addFromMapBtn');
     const addManualBtn = document.getElementById('addManualBtn');
+    const importGpxBtn = document.getElementById('importGpxBtn');
+    const gpxFileInput = document.getElementById('gpxFileInput');
     const saveRouteBtn = document.getElementById('saveRouteBtn');
     const clearRouteBtn = document.getElementById('clearRouteBtn');
     const savedRoutesListEl = document.getElementById('savedRoutesList');
@@ -289,6 +294,38 @@
       const fallback = state.waypoints[state.waypoints.length - 1] || { lat: 52.846, lng: 5.708 };
       const defaultName = `WP ${state.waypoints.length + 1}`;
       addWaypoint({ name: defaultName, lat: fallback.lat, lng: fallback.lng }, { fitMap: state.waypoints.length < 2 });
+    });
+
+    importGpxBtn.addEventListener('click', () => {
+      gpxFileInput.click();
+    });
+
+    gpxFileInput.addEventListener('change', event => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const text = e.target?.result;
+          if (typeof text !== 'string') throw new Error('Ungültige GPX-Datei');
+          const parsed = parseGpx(text);
+          if (!parsed.waypoints.length) {
+            alert('Keine verwertbaren Wegpunkte/Tracks im GPX gefunden.');
+            return;
+          }
+          applyRoute({ id: null, name: parsed.name || 'Importierte GPX-Route', waypoints: parsed.waypoints }, { fitMap: true });
+        } catch (error) {
+          console.error('GPX-Import fehlgeschlagen:', error);
+          alert('GPX-Import fehlgeschlagen. Bitte Datei prüfen.');
+        } finally {
+          gpxFileInput.value = '';
+        }
+      };
+      reader.onerror = () => {
+        alert('GPX-Datei konnte nicht gelesen werden.');
+        gpxFileInput.value = '';
+      };
+      reader.readAsText(file);
     });
 
     addFromMapBtn.addEventListener('click', () => {
@@ -707,6 +744,52 @@
       } catch (error) {
         console.warn('Konnte Routen nicht speichern:', error);
       }
+    }
+
+    function parseGpx(xmlString) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(xmlString, 'application/xml');
+      const gpxError = doc.querySelector('parsererror');
+      if (gpxError) {
+        throw new Error('GPX konnte nicht geparst werden');
+      }
+
+      const name = doc.querySelector('gpx > name, metadata > name, trk > name, rte > name')?.textContent?.trim();
+
+      const extractPoints = (nodes, defaultPrefix) => {
+        const list = [];
+        nodes.forEach((node, index) => {
+          const lat = parseFloat(node.getAttribute('lat'));
+          const lng = parseFloat(node.getAttribute('lon'));
+          if (Number.isNaN(lat) || Number.isNaN(lng)) return;
+          const childName = node.querySelector('name')?.textContent?.trim();
+          list.push({
+            name: childName || `${defaultPrefix} ${index + 1}`,
+            lat,
+            lng
+          });
+        });
+        return list;
+      };
+
+      const trackPoints = extractPoints(doc.querySelectorAll('trk > trkseg > trkpt'), 'Trackpunkt');
+      const routePoints = extractPoints(doc.querySelectorAll('rte > rtept'), 'Routepunkt');
+      const waypointPoints = extractPoints(doc.querySelectorAll('wpt'), 'Wegpunkt');
+
+      let waypoints = trackPoints.length ? trackPoints : routePoints;
+      if (!waypoints.length) {
+        waypoints = waypointPoints;
+      }
+      if (waypoints.length < 2) {
+        return { name, waypoints: [] };
+      }
+      const deduped = waypoints.reduce((acc, wp) => {
+        if (!acc.length || !pointsEqual(acc[acc.length - 1], wp)) {
+          acc.push({ name: wp.name, lat: roundCoord(wp.lat), lng: roundCoord(wp.lng) });
+        }
+        return acc;
+      }, []);
+      return { name, waypoints: deduped };
     }
 
     function computeSafeSegment(startPoint, endPoint, visited = new Set()) {
