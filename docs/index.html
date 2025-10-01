@@ -238,21 +238,21 @@
 
     const map = L.map('map', { zoomControl: true });
     map.attributionControl.setPrefix('');
-    const carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap & CARTO'
-    });
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap-Mitwirkende'
     });
+    const carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap & CARTO'
+    });
+    osm.addTo(map);
     carto.on('tileerror', () => {
-      if (!map.hasLayer(osm)) {
-        map.addLayer(osm);
+      if (map.hasLayer(carto)) {
         map.removeLayer(carto);
+        if (!map.hasLayer(osm)) map.addLayer(osm);
       }
     });
-    carto.addTo(map);
     const seamarks = L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
       maxZoom: 18,
       opacity: 0.95,
@@ -260,7 +260,7 @@
     }).addTo(map);
     const shallowLayer = L.layerGroup().addTo(map);
     L.control.layers(
-      { 'Carto Voyager': carto, 'OpenStreetMap': osm },
+      { 'OpenStreetMap': osm, 'Carto Voyager': carto },
       { 'OpenSeaMap Seamarks': seamarks, 'Flachwasser (<2 m)': shallowLayer },
       { collapsed: true }
     ).addTo(map);
@@ -459,6 +459,7 @@
       applyRoute(savedRoutes[0] || defaultRoute, { fitMap: true });
       renderSavedRoutes();
       renderAll({ fitMap: true });
+      setTimeout(() => map.invalidateSize(), 100);
     }
 
     function addWaypoint(data, { fitMap = false } = {}) {
@@ -748,10 +749,8 @@
         const raw = localStorage.getItem(ROUTE_STORE_KEY);
         if (!raw) return [];
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-        return [];
+        if (!Array.isArray(parsed)) return [];
+        return parsed.map(normalizeStoredRoute).filter(Boolean);
       } catch (error) {
         console.warn('Konnte gespeicherte Routen nicht laden:', error);
         return [];
@@ -963,6 +962,28 @@
     function escapeHtml(value) {
       return (value || '').replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char] || char));
     }
+
+    function normalizeStoredRoute(route) {
+      if (!route) return null;
+      if (Array.isArray(route.waypoints)) {
+        return route;
+      }
+      if (Array.isArray(route.legs)) {
+        const waypoints = [];
+        route.legs.forEach((leg, idx) => {
+          if (leg?.from && leg.from.lat && leg.from.lng) {
+            if (!waypoints.length) waypoints.push({ name: leg.from.name || `WP ${idx + 1}`, lat: leg.from.lat, lng: leg.from.lng });
+            if (leg.to && leg.to.lat && leg.to.lng) {
+              waypoints.push({ name: leg.to.name || `WP ${idx + 2}`, lat: leg.to.lat, lng: leg.to.lng });
+            }
+          }
+        });
+        return { id: route.id || `legacy-${Date.now()}`, name: route.title || route.name || 'Importierte Route', waypoints };
+      }
+      return null;
+    }
+
+    window.addEventListener('resize', () => map.invalidateSize());
   </script>
 </body>
 </html>
