@@ -212,6 +212,96 @@
       }
     ];
 
+    const waterPolygon = turf.polygon([
+      [
+        [5.400, 52.960],
+        [5.720, 52.960],
+        [5.760, 52.900],
+        [5.780, 52.840],
+        [5.820, 52.770],
+        [5.820, 52.720],
+        [5.760, 52.640],
+        [5.740, 52.595],
+        [5.670, 52.560],
+        [5.560, 52.520],
+        [5.530, 52.480],
+        [5.520, 52.430],
+        [5.470, 52.380],
+        [5.360, 52.330],
+        [5.250, 52.300],
+        [5.120, 52.280],
+        [5.020, 52.280],
+        [4.950, 52.320],
+        [4.900, 52.360],
+        [4.890, 52.420],
+        [4.940, 52.470],
+        [5.020, 52.500],
+        [5.080, 52.530],
+        [5.120, 52.570],
+        [5.140, 52.620],
+        [5.190, 52.660],
+        [5.260, 52.700],
+        [5.350, 52.760],
+        [5.370, 52.810],
+        [5.360, 52.860],
+        [5.360, 52.900],
+        [5.380, 52.930],
+        [5.400, 52.960]
+      ]
+    ]);
+
+    const navNodes = [
+      { id: 'LC9', name: 'LC 9', lat: 52.820206, lng: 5.305619 },
+      { id: 'LC7', name: 'LC 7', lat: 52.828322, lng: 5.306181 },
+      { id: 'LC5', name: 'LC 5', lat: 52.836833, lng: 5.307072 },
+      { id: 'LC3', name: 'LC 3', lat: 52.846269, lng: 5.306536 },
+      { id: 'LC1', name: 'LC 1', lat: 52.8557, lng: 5.30605 },
+      { id: 'KG1', name: 'KG 1', lat: 52.74015, lng: 5.2898 },
+      { id: 'KG13', name: 'KG 13', lat: 52.704997, lng: 5.305953 },
+      { id: 'KG23', name: 'KG 23', lat: 52.686394, lng: 5.284839 },
+      { id: 'KG27', name: 'KG 27', lat: 52.685333, lng: 5.2791 },
+      { id: 'KG31', name: 'KG 31', lat: 52.672153, lng: 5.25845 },
+      { id: 'KG35', name: 'KG 35', lat: 52.656456, lng: 5.239697 },
+      { id: 'SD24', name: 'SD 24', lat: 52.600603, lng: 5.028444 },
+      { id: 'SD20', name: 'SD 20', lat: 52.601531, lng: 5.034989 },
+      { id: 'SD16', name: 'SD 16', lat: 52.603589, lng: 5.050575 },
+      { id: 'MO12', name: 'MO 12', lat: 52.462719, lng: 5.043981 },
+      { id: 'MO6', name: 'MO 6', lat: 52.463475, lng: 5.065831 },
+      { id: 'GZ16', name: 'GZ 16', lat: 52.467739, lng: 5.085603 },
+      { id: 'GZ12', name: 'GZ 12', lat: 52.476981, lng: 5.086086 },
+      { id: 'PM7', name: 'PM 7', lat: 52.488592, lng: 5.070161 },
+      { id: 'PM5', name: 'PM 5', lat: 52.488603, lng: 5.073536 },
+      { id: 'PG17', name: 'PG 17', lat: 52.371131, lng: 4.982225 },
+      { id: 'PG16', name: 'PG 16', lat: 52.368492, lng: 4.985978 },
+      { id: 'D6', name: 'D 6', lat: 52.376067, lng: 4.993133 },
+      { id: 'IJ5', name: 'IJ 5', lat: 52.381867, lng: 4.937517 },
+      { id: 'ET21', name: 'ET 21', lat: 52.689339, lng: 5.404972 },
+      { id: 'ET41', name: 'ET 41', lat: 52.669269, lng: 5.470297 },
+      { id: 'ET45', name: 'ET 45', lat: 52.665253, lng: 5.483361 },
+      { id: 'ET55', name: 'ET 55', lat: 52.655081, lng: 5.478606 },
+      { id: 'ET63', name: 'ET 63', lat: 52.646797, lng: 5.454786 },
+      { id: 'ET69', name: 'ET 69', lat: 52.640586, lng: 5.436944 },
+      { id: 'EZ9', name: 'EZ 9', lat: 52.592881, lng: 5.502047 },
+      { id: 'EZ6', name: 'EZ 6', lat: 52.588789, lng: 5.513464 },
+      { id: 'EZ4', name: 'EZ 4-MR25', lat: 52.598094, lng: 5.527567 },
+      { id: 'EZ2', name: 'EZ 2', lat: 52.608989, lng: 5.543333 },
+      { id: 'EZ1', name: 'EZ 1', lat: 52.655164, lng: 5.542392 },
+      { id: 'UR8', name: 'UR 8', lat: 52.677867, lng: 5.580094 },
+      { id: 'UR6', name: 'UR 6', lat: 52.681139, lng: 5.583156 },
+      { id: 'UR4', name: 'UR 4', lat: 52.684061, lng: 5.588464 },
+      { id: 'UR2', name: 'UR 2', lat: 52.685586, lng: 5.591 },
+      { id: 'LEMWARD', name: 'Lemmer Zufahrt', lat: 52.820, lng: 5.500 },
+      { id: 'HOORN', name: 'Hoorn Zufahrt', lat: 52.645, lng: 5.115 },
+      { id: 'ENKH', name: 'Enkhuizen Zufahrt', lat: 52.705, lng: 5.310 },
+      { id: 'VOLENDAM', name: 'Volendam Zufahrt', lat: 52.498, lng: 5.074 },
+      { id: 'AMSHAVEN', name: 'Amsterdam Noorder', lat: 52.410, lng: 5.000 },
+      { id: 'DIEMER', name: 'Diemerzeedijk', lat: 52.335, lng: 5.035 },
+      { id: 'MARKERZUID', name: 'Markermeer Süd', lat: 52.500, lng: 5.200 },
+      { id: 'MARKERWEST', name: 'Markermeer West', lat: 52.550, lng: 5.080 },
+      { id: 'MARKERNORD', name: 'Markermeer Nord', lat: 52.700, lng: 5.380 },
+      { id: 'HOU', name: 'Houtribdijk Mitte', lat: 52.600, lng: 5.450 }
+    ];
+
     const state = {
       currentRouteId: null,
       routeName: '',
@@ -224,6 +314,7 @@
     let addFromMapArmed = false;
     let legLayers = [];
     let highlightedLegIndex = null;
+    let baseGraph = null;
 
     const waypointListEl = document.getElementById('waypointList');
     const routeNameInput = document.getElementById('routeNameInput');
@@ -814,39 +905,25 @@
     function computeSafeSegment(startPoint, endPoint, visited = new Set()) {
       const start = clonePoint(startPoint);
       const end = clonePoint(endPoint);
-      const directLine = turf.lineString([toLngLat(start), toLngLat(end)]);
-      const blockingAreas = shallowAreas.filter(area => area.depth < state.requiredDepth && !turf.booleanDisjoint(directLine, area.turfPolygon));
-
-      if (!blockingAreas.length) {
+      const line = turf.lineString([toLngLat(start), toLngLat(end)]);
+      if (lineIsNavigable(line)) {
         return [start, end];
       }
 
-      let best = null;
-      blockingAreas.forEach(area => {
-        const marker = `${area.id}:${start.lat}:${start.lng}:${end.lat}:${end.lng}`;
-        if (visited.has(marker)) {
-          return;
-        }
-        const nextVisited = new Set(visited);
-        nextVisited.add(marker);
-        area.routeNodes.forEach(node => {
-          const corner = clonePoint(node);
-          if (pointsEqual(start, corner) || pointsEqual(end, corner)) {
-            return;
-          }
-          const pathToCorner = computeSafeSegment(start, corner, nextVisited);
-          const pathFromCorner = computeSafeSegment(corner, end, nextVisited);
-          if (!pathToCorner || !pathFromCorner) return;
-          const combined = mergeSegments(pathToCorner, pathFromCorner);
-          if (pathCrossesForbidden(combined)) return;
-          const distance = computePathDistance(combined);
-          if (!best || distance < best.distance) {
-            best = { points: combined, distance };
-          }
-        });
-      });
+      ensureGraph();
+      const nodes = [...baseGraph.nodes];
+      const adjacency = baseGraph.adjacency.map(list => list.map(edge => ({ ...edge }))); // shallow clone
 
-      return best ? best.points : [start, end];
+      const startNodeIndex = connectDynamicNode(nodes, adjacency, { name: startPoint.name || 'Start', lat: start.lat, lng: start.lng });
+      const endNodeIndex = connectDynamicNode(nodes, adjacency, { name: endPoint.name || 'Ziel', lat: end.lat, lng: end.lng });
+
+      const pathIndices = runDijkstra(nodes, adjacency, startNodeIndex, endNodeIndex);
+      if (!pathIndices.length) {
+        return [start, end];
+      }
+
+      const points = pathIndices.map(idx => ({ lat: nodes[idx].lat, lng: nodes[idx].lng, name: nodes[idx].name }));
+      return points;
     }
 
     function computePathDistance(points) {
@@ -894,19 +971,6 @@
         }
       });
       return simplified;
-    }
-
-    function pathCrossesForbidden(points) {
-      for (let i = 1; i < points.length; i += 1) {
-        const line = turf.lineString([toLngLat(points[i - 1]), toLngLat(points[i])]);
-        for (const area of shallowAreas) {
-          if (area.depth >= state.requiredDepth) continue;
-          if (!turf.booleanDisjoint(line, area.turfPolygon)) {
-            return true;
-          }
-        }
-      }
-      return false;
     }
 
     function estimateRouteDistance(waypoints) {
@@ -961,6 +1025,95 @@
 
     function escapeHtml(value) {
       return (value || '').replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char] || char));
+    }
+
+    function ensureGraph() {
+      if (baseGraph) return;
+      const nodes = navNodes.map((node, index) => ({ ...node, index }));
+      const adjacency = nodes.map(() => []);
+      nodes.forEach((node, idx) => {
+        const candidates = nodes
+          .filter((other, jdx) => jdx !== idx)
+          .map(other => ({ other, distance: haversineNm(node, other) }))
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, 8);
+        candidates.forEach(({ other, distance }) => {
+          const line = turf.lineString([toLngLat(node), toLngLat(other)]);
+          if (!lineIsNavigable(line)) return;
+          adjacency[idx].push({ target: other.index, weight: distance });
+        });
+      });
+      baseGraph = { nodes, adjacency };
+    }
+
+    function connectDynamicNode(nodes, adjacency, node) {
+      const index = nodes.length;
+      nodes.push({ ...node, index });
+      adjacency.push([]);
+      const candidates = nodes
+        .slice(0, -1)
+        .map(other => ({ other, distance: haversineNm(node, other) }))
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, 8);
+      candidates.forEach(({ other, distance }) => {
+        const line = turf.lineString([toLngLat(node), toLngLat(other)]);
+        if (!lineIsNavigable(line)) return;
+        adjacency[index].push({ target: other.index, weight: distance });
+        adjacency[other.index].push({ target: index, weight: distance });
+      });
+      return index;
+    }
+
+    function runDijkstra(nodes, adjacency, sourceIndex, targetIndex) {
+      const distances = new Array(nodes.length).fill(Infinity);
+      const previous = new Array(nodes.length).fill(-1);
+      const visited = new Array(nodes.length).fill(false);
+      distances[sourceIndex] = 0;
+
+      for (let i = 0; i < nodes.length; i += 1) {
+        let u = -1;
+        let minDist = Infinity;
+        for (let j = 0; j < nodes.length; j += 1) {
+          if (!visited[j] && distances[j] < minDist) {
+            minDist = distances[j];
+            u = j;
+          }
+        }
+        if (u === -1 || u === targetIndex) break;
+        visited[u] = true;
+        adjacency[u].forEach(({ target, weight }) => {
+          if (visited[target]) return;
+          const alt = distances[u] + weight;
+          if (alt < distances[target]) {
+            distances[target] = alt;
+            previous[target] = u;
+          }
+        });
+      }
+
+      const path = [];
+      let current = targetIndex;
+      if (!Number.isFinite(distances[targetIndex])) {
+        return path;
+      }
+      while (current !== -1) {
+        path.unshift(current);
+        current = previous[current];
+      }
+      return path;
+    }
+
+    function lineIsNavigable(line) {
+      if (!turf.booleanWithin(line, waterPolygon)) {
+        return false;
+      }
+      for (const area of shallowAreas) {
+        if (area.depth >= state.requiredDepth) continue;
+        if (!turf.booleanDisjoint(line, area.turfPolygon)) {
+          return false;
+        }
+      }
+      return true;
     }
 
     function normalizeStoredRoute(route) {
