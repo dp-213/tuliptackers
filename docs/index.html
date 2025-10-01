@@ -258,6 +258,7 @@
       opacity: 0.95,
       attribution: '&copy; OpenSeaMap Contributors'
     }).addTo(map);
+    const shallowLayer = L.layerGroup().addTo(map);
     L.control.layers(
       { 'Carto Voyager': carto, 'OpenStreetMap': osm },
       { 'OpenSeaMap Seamarks': seamarks, 'Flachwasser (<2 m)': shallowLayer },
@@ -267,9 +268,8 @@
     map.setView([52.7, 5.3], 9);
 
     const waypointLayer = L.layerGroup().addTo(map);
-    const routeLayer = L.layerGroup().addTo(map);
+    const routeLayer = L.featureGroup().addTo(map);
     const labelLayer = L.layerGroup().addTo(map);
-    const shallowLayer = L.layerGroup().addTo(map);
 
     shallowAreas.forEach(area => {
       const ring = area.coords.map(([lat, lng]) => [lng, lat]);
@@ -284,6 +284,26 @@
         fillOpacity: 0.2,
         dashArray: '6,4'
       }).bindTooltip(area.name, { sticky: true }).addTo(shallowLayer);
+    });
+
+    const harbors = [
+      { name: 'Lemmer', lat: 52.846, lng: 5.708, info: 'Enjoy Sailing' },
+      { name: 'Hoorn', lat: 52.643, lng: 5.071, info: 'Grashaven' },
+      { name: 'Enkhuizen', lat: 52.703, lng: 5.294, info: 'Compagnieshaven' },
+      { name: 'Amsterdam', lat: 52.383, lng: 4.900, info: 'Sixhaven / Oranjesluizen' },
+      { name: 'Urk', lat: 52.664, lng: 5.604, info: 'Urkerhaven' }
+    ];
+    harbors.forEach(port => {
+      L.marker([port.lat, port.lng], {
+        icon: L.icon({
+          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
+        })
+      })
+        .bindPopup(`<b>${port.name}</b><br>${port.info || ''}`)
+        .bindTooltip(port.name)
+        .addTo(map);
     });
 
     routeNameInput.addEventListener('input', event => {
