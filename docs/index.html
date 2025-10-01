@@ -10,19 +10,50 @@
     html, body { height: 100%; margin: 0; background: #f3f6fb; color: #0f213f; font: 15px/1.5 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
     body { display: flex; }
     .app { display: flex; flex: 1 1 auto; min-height: 100vh; width: 100%; }
-    .sidebar { width: 320px; max-width: 360px; background: #ffffff; padding: 28px 24px 36px; display: flex; flex-direction: column; gap: 20px; box-shadow: 16px 0 40px rgba(12, 40, 80, 0.12); z-index: 1000; }
+    .sidebar { width: 340px; max-width: 380px; background: #ffffff; padding: 26px 24px 32px; display: flex; flex-direction: column; gap: 18px; box-shadow: 16px 0 40px rgba(12, 40, 80, 0.12); z-index: 1000; overflow-y: auto; }
     .sidebar h1 { margin: 0; font-size: 26px; letter-spacing: 0.02em; }
     .sidebar p { margin: 0; color: #42516a; }
     .sidebar .intro { font-size: 15px; }
+    .field-label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: #486186; }
+    #routeNameInput { border: 1px solid rgba(30, 60, 120, 0.18); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-family: inherit; color: #0f213f; background: rgba(248, 250, 255, 0.9); }
+    #routeNameInput:focus { outline: 2px solid rgba(31, 88, 255, 0.35); outline-offset: 1px; }
+    .editor { display: flex; flex-direction: column; gap: 12px; padding: 16px 16px 18px; background: rgba(37, 102, 233, 0.06); border: 1px solid rgba(37, 102, 233, 0.18); border-radius: 16px; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+    .sidebar button { cursor: pointer; border: 1px solid rgba(30, 60, 120, 0.18); background: #fff; padding: 8px 12px; border-radius: 10px; font-weight: 600; color: #1b2f53; transition: all 0.15s ease; font-family: inherit; }
+    .sidebar button:hover { border-color: #1f58ff; color: #1f58ff; }
+    .editor-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    .editor-controls button { flex: 1 0 150px; }
+    .editor-controls button.is-armed { background: #2b7bff; color: #fff; border-color: #1f58ff; box-shadow: 0 8px 16px rgba(31, 88, 255, 0.3); }
+    .editor-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 4px; }
+    .editor-actions .secondary { background: rgba(31, 88, 255, 0.08); color: #1f58ff; border-color: rgba(31, 88, 255, 0.18); }
+    .waypoint-list { display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow-y: auto; padding-right: 4px; }
+    .waypoint-empty { font-size: 13px; color: #61718f; background: rgba(255, 255, 255, 0.86); border: 1px dashed rgba(37, 102, 233, 0.28); border-radius: 10px; padding: 12px; text-align: center; }
+    .waypoint-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) 112px 112px auto; align-items: center; gap: 6px; padding: 8px 10px; background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(37, 102, 233, 0.14); border-radius: 12px; box-shadow: 0 4px 12px rgba(25, 68, 130, 0.08); }
+    .waypoint-row span.index { font-weight: 600; color: #1b4fd8; }
+    .waypoint-row input { width: 100%; border: 1px solid rgba(30, 60, 120, 0.16); border-radius: 8px; padding: 6px 8px; font-size: 13px; font-family: inherit; background: rgba(255, 255, 255, 0.95); }
+    .waypoint-row input:focus { outline: 2px solid rgba(31, 88, 255, 0.35); outline-offset: 1px; }
+    .waypoint-actions { display: flex; gap: 4px; }
+    .waypoint-actions button { padding: 6px 8px; min-width: 32px; font-size: 12px; }
+    .waypoint-actions .danger { background: rgba(255, 82, 82, 0.12); border-color: rgba(255, 82, 82, 0.32); color: #d12b2b; }
+    .saved-routes { display: flex; flex-direction: column; gap: 10px; }
+    .saved-routes h2 { font-size: 16px; margin: 0; color: #0f2350; }
+    .saved-routes__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    .saved-routes__item { display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid rgba(37, 102, 233, 0.14); border-radius: 12px; padding: 10px 12px; background: rgba(255, 255, 255, 0.92); box-shadow: 0 4px 12px rgba(25, 68, 130, 0.08); }
+    .saved-routes__item strong { display: block; font-size: 14px; color: #123a80; }
+    .saved-routes__item small { display: block; font-size: 11px; color: #61718f; margin-top: 2px; }
+    .saved-routes__item .saved-actions { display: flex; gap: 6px; }
+    .saved-routes__item button.danger { background: rgba(255, 82, 82, 0.12); border-color: rgba(255, 82, 82, 0.32); color: #d12b2b; }
+    .saved-routes__item.is-active { border-color: rgba(27, 79, 216, 0.38); box-shadow: 0 6px 18px rgba(25, 68, 130, 0.18); }
+    .saved-routes__item.is-active button[data-action="load"] { background: rgba(31, 88, 255, 0.12); border-color: rgba(31, 88, 255, 0.3); color: #1b4fd8; cursor: default; pointer-events: none; }
     .route-details { display: flex; flex-direction: column; gap: 18px; }
     .sea-note { font-size: 12px; color: #61718f; line-height: 1.5; border-top: 1px solid rgba(30, 60, 120, 0.12); padding-top: 12px; margin-top: auto; }
     .route-card { background: linear-gradient(135deg, rgba(37, 102, 233, 0.08), rgba(104, 176, 255, 0.06)); border: 1px solid rgba(37, 102, 233, 0.18); border-radius: 18px; padding: 20px 20px 18px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 30px rgba(25, 68, 130, 0.12); }
+    .route-card.empty { background: rgba(255, 255, 255, 0.88); border-style: dashed; color: #61718f; }
     .route-card__header { display: flex; flex-direction: column; gap: 4px; }
     .route-card__header h2 { margin: 6px 0 4px; font-size: 18px; line-height: 1.3; }
     .route-card__header p { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: #304c78; }
     .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #1b4fd8; background: rgba(37, 102, 233, 0.12); border-radius: 999px; padding: 4px 10px; }
     .leg-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-    .leg-list li { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: rgba(255, 255, 255, 0.75); border: 1px solid rgba(37, 102, 233, 0.12); border-radius: 12px; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; outline: none; }
+    .leg-list li { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(37, 102, 233, 0.14); border-radius: 12px; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease; outline: none; }
     .leg-list li:hover, .leg-list li:focus { border-color: rgba(37, 102, 233, 0.4); box-shadow: 0 8px 18px rgba(25, 68, 130, 0.16); transform: translateY(-1px); }
     .leg-list li.is-active { border-color: rgba(37, 102, 233, 0.55); box-shadow: 0 10px 24px rgba(25, 68, 130, 0.2); transform: translateY(-2px); }
     .leg-line { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
@@ -30,10 +61,6 @@
     .leg-meta { display: flex; justify-content: space-between; font-size: 13px; color: #486186; }
     .leg-distance { font-weight: 600; color: #123a80; }
     .leg-duration { font-variant-numeric: tabular-nums; }
-    .leg-depth { font-size: 12px; font-weight: 600; color: #1b4fd8; background: rgba(27, 79, 216, 0.12); padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .leg-via { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; font-size: 11px; background: rgba(27, 79, 216, 0.1); color: #244a99; font-weight: 600; letter-spacing: 0.03em; }
-    .leg-notes { margin: 8px 0 0; font-size: 12px; color: #486186; line-height: 1.45; }
     .map-wrap { position: relative; flex: 1; }
     #map { height: 100%; width: 100%; min-height: 100vh; background: #e4edf8; }
     .toolbar { position: absolute; top: 24px; right: 28px; z-index: 1000; display: flex; gap: 8px; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(30, 60, 120, 0.18); box-shadow: 0 10px 25px rgba(16, 40, 84, 0.12); border-radius: 14px; padding: 6px; backdrop-filter: blur(4px); }
@@ -42,38 +69,28 @@
     .toolbar button.active { background: #2b7bff; color: #fff; border-color: #1f58ff; box-shadow: 0 8px 16px rgba(31, 88, 255, 0.3); }
     .legend { position: absolute; bottom: 24px; right: 28px; background: rgba(255, 255, 255, 0.94); border: 1px solid rgba(30, 60, 120, 0.16); border-radius: 12px; padding: 14px 16px; box-shadow: 0 12px 24px rgba(16, 38, 82, 0.15); font-size: 13px; line-height: 1.4; max-width: 300px; }
     .legend strong { display: block; margin-bottom: 6px; color: #0f2350; }
-    .legend .swatch, .legend .swatch-alt { display: inline-block; width: 24px; height: 6px; margin-right: 6px; vertical-align: middle; border-radius: 3px; box-shadow: 0 0 0 1px rgba(21, 101, 192, 0.25); }
+    .legend .swatch, .legend .swatch-alt { display: inline-block; width: 24px; height: 6px; margin-right: 6px; vertical-align: middle; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15); }
     .legend .swatch { background: #1565c0; }
-    .legend .swatch-alt { background: #1565c0; border-bottom: 2px dashed #1565c0; box-shadow: none; }
-    .route-label {
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid rgba(37, 102, 233, 0.35);
-      border-radius: 10px;
-      box-shadow: 0 12px 28px rgba(16, 38, 82, 0.22);
-      color: #10264d;
-      padding: 6px 10px;
-      text-align: center;
-      font-size: clamp(11px, 0.8vw + 8px, 14px);
-      line-height: 1.35;
-      font-weight: 500;
-      white-space: nowrap;
-    }
+    .legend .swatch-alt { background: #f16161; box-shadow: 0 0 0 1px rgba(241, 97, 97, 0.4); }
+    .route-label { background: rgba(255, 255, 255, 0.92); border: 1px solid rgba(37, 102, 233, 0.35); border-radius: 10px; box-shadow: 0 12px 28px rgba(16, 38, 82, 0.22); color: #10264d; padding: 6px 10px; text-align: center; font-size: clamp(11px, 0.8vw + 8px, 14px); line-height: 1.35; font-weight: 500; white-space: nowrap; }
     .route-label .tooltip-heading { font-weight: 600; }
     .route-label .tooltip-meta { font-size: 0.85em; color: #486186; }
-    .route-label.is-active {
-      border-color: rgba(37, 102, 233, 0.6);
-      box-shadow: 0 16px 32px rgba(25, 68, 130, 0.32);
-    }
+    .route-label.is-active { border-color: rgba(37, 102, 233, 0.6); box-shadow: 0 16px 32px rgba(25, 68, 130, 0.32); }
     @media (max-width: 900px) {
       .app { flex-direction: column; }
-      .sidebar { order: 2; width: 100%; max-width: none; box-shadow: none; border-bottom: 1px solid rgba(30, 60, 120, 0.12); border-radius: 0; padding: 22px 18px 28px; }
+      .sidebar { order: 2; width: 100%; max-width: none; box-shadow: none; border-bottom: 1px solid rgba(30, 60, 120, 0.12); border-radius: 0; padding: 22px 18px 24px; }
       .map-wrap { order: 1; min-height: 68vh; }
       #map { min-height: 70vh; }
       .toolbar { left: 50%; right: auto; transform: translateX(-50%); top: 18px; }
       .legend { left: 50%; right: auto; transform: translateX(-50%); bottom: 18px; }
     }
     @media (max-width: 520px) {
-      .sidebar { padding: 18px 16px 24px; gap: 16px; }
+      .sidebar { padding: 18px 16px 22px; gap: 16px; }
+      .editor { padding: 14px; }
+      .waypoint-row { grid-template-columns: 24px minmax(0, 1fr); grid-template-rows: auto auto auto; }
+      .waypoint-row input[name="name"] { grid-column: 2 / -1; }
+      .waypoint-row input[name="lat"], .waypoint-row input[name="lng"] { grid-column: 2 / -1; }
+      .waypoint-row .waypoint-actions { grid-column: 2 / -1; justify-content: flex-start; }
       .route-card { padding: 16px; border-radius: 16px; }
       .route-card__header h2 { font-size: 16px; }
       .badge { font-size: 10px; }
@@ -83,8 +100,6 @@
       .legend { width: calc(100% - 32px); max-width: none; }
       .leg-meta { flex-direction: column; gap: 2px; align-items: flex-start; }
       .leg-line { flex-direction: column; align-items: flex-start; gap: 6px; }
-      .leg-depth { align-self: flex-start; }
-      .chip { font-size: 10px; padding: 3px 7px; }
       #map { min-height: 60vh; }
     }
   </style>
@@ -93,514 +108,757 @@
   <div class="app">
     <aside class="sidebar">
       <h1>Tulip Tackers</h1>
-      <p class="intro">Markermeer Routenplanung mit echten See-Distanzen. Wähle die Standard-Schleife via Hoorn oder die Enkhuizen-Variante und sieh sofort, wie viele Seemeilen pro Schlag anstehen.</p>
+      <p class="intro">Markermeer Routenplanung mit echten See-Distanzen. Füge Wegpunkte hinzu, ziehe sie in die richtige Reihenfolge und lasse dir automatisch eine sichere Route über tiefes Wasser berechnen.</p>
+
+      <section class="editor">
+        <label for="routeNameInput" class="field-label">Routenname</label>
+        <input id="routeNameInput" type="text" placeholder="Meine Markermeer-Route" />
+        <div class="editor-controls">
+          <button id="addFromMapBtn" type="button">+ Wegpunkt via Karte</button>
+          <button id="addManualBtn" type="button">+ Wegpunkt manuell</button>
+        </div>
+        <div class="waypoint-list" id="waypointList"></div>
+        <div class="editor-actions">
+          <button id="clearRouteBtn" type="button" class="secondary">Route leeren</button>
+          <button id="saveRouteBtn" type="button">Route speichern</button>
+        </div>
+      </section>
+
+      <section class="saved-routes">
+        <h2>Gespeicherte Routen</h2>
+        <ul id="savedRoutesList" class="saved-routes__list"></ul>
+      </section>
+
       <div id="routeDetails" class="route-details"></div>
-      <div class="sea-note">Distanzberechnung via Haversine über alle Wegpunkte. Reisezeiten kalkuliert für 5–7 kn Fahrt über Grund. Basemap: Carto Voyager &amp; OSM · Overlay: OpenSeaMap.</div>
+      <div class="sea-note">Distanzberechnung via Haversine. Tiefgang-Check: Hindernisse &lt; 2,2&nbsp;m werden über definierte Umfahrungen gemieden. Datenbasis: vereinfachte Markermeer-Flachwasser-Polygone · Basemap: Carto Voyager &amp; OSM · Overlay: OpenSeaMap.</div>
     </aside>
     <div class="map-wrap">
       <div id="map"></div>
-      <div class="toolbar">
-        <button id="btnA" class="active" title="Zeige Standardroute via Hoorn">Route A</button>
-        <button id="btnB" title="Zeige Variante via Enkhuizen">Route B</button>
-      </div>
       <div class="legend">
         <strong>Tulip Tackers – Seekarte</strong>
-        <span class="swatch"></span> Route A: Lemmer → Hoorn → Amsterdam → Urk → Lemmer<br/>
-        <span class="swatch-alt"></span> Route B: Lemmer → Enkhuizen → Amsterdam → Urk → Lemmer<br/>
-        Basemap: Carto Voyager (Fallback: OSM) · Overlay: OpenSeaMap Seamarks
+        <span class="swatch"></span> Aktive Route (≥ 2,2 m erwartet)<br/>
+        <span class="swatch-alt"></span> Markiertes Flachwasser (&lt; 2 m)
       </div>
     </div>
   </div>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
   <script>
-    // ---- Häfen ----
-    const ports = {
-      Lemmer:    [52.846, 5.708],
-      Hoorn:     [52.643, 5.071],
-      Amsterdam: [52.383, 4.900], // grob Sixhaven
-      Volendam:  [52.495, 5.073],
-      Enkhuizen: [52.703, 5.294],
-      Urk:       [52.664, 5.604]
-    };
-
-    const navPoints = {
-      'Prinses Margrietsluis': [52.85265, 5.677124],
-      'NM 12B': [52.825206, 5.636047],
-      'NM 11A': [52.821389, 5.634869],
-      'NM 8': [52.803467, 5.612114],
-      'NM 6': [52.7959, 5.60454],
-      'LC 9': [52.820206, 5.305619],
-      'LC 7': [52.828322, 5.306181],
-      'LC 5': [52.836833, 5.307072],
-      'LC 3': [52.846269, 5.306536],
-      'LC 1': [52.8557, 5.30605],
-      'KG 1': [52.74015, 5.2898],
-      'KG 6': [52.682783, 5.277267],
-      'KG 13': [52.704997, 5.305953],
-      'KG 23': [52.686394, 5.284839],
-      'KG 27': [52.685333, 5.2791],
-      'KG 31': [52.672153, 5.25845],
-      'KG 35': [52.656456, 5.239697],
-      'SD 24': [52.600603, 5.028444],
-      'SD 20': [52.601531, 5.034989],
-      'SD 16': [52.603589, 5.050575],
-      'MO 12': [52.462719, 5.043981],
-      'MO 6': [52.463475, 5.065831],
-      'GZ 16': [52.467739, 5.085603],
-      'GZ 12': [52.476981, 5.086086],
-      'PM 7': [52.488592, 5.070161],
-      'PM 5': [52.488603, 5.073536],
-      'MG 21': [52.343806, 5.072944],
-      'MG 17': [52.343928, 5.081764],
-      'PG 17': [52.371131, 4.982225],
-      'PG 16': [52.368492, 4.985978],
-      'D 6': [52.376067, 4.993133],
-      'B': [52.381286, 4.935364],
-      'IJ 5': [52.381867, 4.937517],
-      'EZ 9': [52.592881, 5.502047],
-      'EZ 8': [52.578542, 5.498144],
-      'EZ 6': [52.588789, 5.513464],
-      'EZ 4-MR25': [52.598094, 5.527567],
-      'EZ 2': [52.608989, 5.543333],
-      'EZ 1': [52.655164, 5.542392],
-      'ET 21': [52.689339, 5.404972],
-      'ET 41': [52.669269, 5.470297],
-      'ET 45': [52.665253, 5.483361],
-      'ET 55': [52.655081, 5.478606],
-      'ET 63': [52.646797, 5.454786],
-      'ET 69': [52.640586, 5.436944],
-      'UR 8': [52.677867, 5.580094],
-      'UR 6': [52.681139, 5.583156],
-      'UR 4': [52.684061, 5.588464],
-      'UR 2': [52.685586, 5.591]
-    };
-
-    const resolvePoint = ref => {
-      if (Array.isArray(ref)) return ref;
-      if (ports[ref]) return ports[ref];
-      if (navPoints[ref]) return navPoints[ref];
-      console.warn('Unknown navigation point', ref);
-      return null;
-    };
-
-    const resolvePath = path => path.map(resolvePoint).filter(Boolean);
-
-    const sampleWaypoints = (names, max = 4) => {
-      if (!Array.isArray(names) || names.length === 0) return [];
-      if (names.length <= max) return names;
-      const results = [];
-      const step = (names.length - 1) / (max - 1);
-      for (let i = 0; i < max; i += 1) {
-        const idx = Math.min(names.length - 1, Math.round(i * step));
-        const candidate = names[idx];
-        if (!results.includes(candidate)) {
-          results.push(candidate);
-        }
-      }
-      return results;
-    };
-
-    // ---- Route-Definition mit Waypoints ----
     const NM_FROM_KM = 1 / 1.852;
-    const toRad = v => v * Math.PI / 180;
-    const haversineKm = (a, b) => {
-      const [lat1, lon1] = a;
-      const [lat2, lon2] = b;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const s = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-      const c = 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
-      return 6371.0088 * c;
-    };
-    const distanceNm = points => {
-      let km = 0;
-      for (let i = 1; i < points.length; i += 1) {
-        km += haversineKm(points[i - 1], points[i]);
-      }
-      return km * NM_FROM_KM;
-    };
-
     const SPEED_RANGE = { min: 5, max: 7 };
+    const MIN_DEPTH = 2.2;
+    const ROUTE_STORE_KEY = 'tuliptackers.routes.v1';
 
-    const routes = {
-      A: {
-        id: 'A',
-        label: 'Route A',
-        title: 'Standard: Lemmer → Hoorn → Amsterdam → Urk → Lemmer',
-        color: '#1565c0',
-        dashed: false,
-        legs: [
-          {
-            from: 'Lemmer',
-            to: 'Hoorn',
-            depth: '≥3 m Fahrwasser',
-            notes: 'Tag 1 · Lemmergeul Richtung Hoorn über NM/LC/KG/SD Tonnen.',
-            path: [
-              'Lemmer',
-              'Prinses Margrietsluis', 'NM 12B', 'NM 11A', 'NM 8', 'NM 6',
-              'LC 9', 'LC 7', 'LC 5', 'LC 3', 'LC 1',
-              'KG 1', 'KG 13', 'KG 23', 'KG 27', 'KG 31', 'KG 35',
-              'SD 24', 'SD 20', 'SD 16',
-              'Hoorn'
-            ]
-          },
-          {
-            from: 'Hoorn',
-            to: 'Amsterdam',
-            depth: '≥3 m',
-            notes: 'Tag 2 · Südkurs durchs Hoornse Hop weiter via MO/PG nach Amsterdam.',
-            path: [
-              'Hoorn',
-              'SD 16', 'SD 20', 'SD 24',
-              'MO 6', 'MO 12', 'GZ 16', 'GZ 12', 'PM 7', 'PM 5',
-              'PG 17', 'PG 16', 'D 6', 'IJ 5', 'B',
-              'Amsterdam'
-            ]
-          },
-          {
-            from: 'Amsterdam',
-            to: 'Urk',
-            depth: '≥3 m',
-            notes: 'Tag 3 · Markermeer-Längstraverse via ET/EZ-Tonnen bis Urk.',
-            path: [
-              'Amsterdam',
-              'PG 16', 'PG 17', 'D 6',
-              'PM 5', 'PM 7', 'GZ 16', 'MO 6',
-              'SD 16', 'SD 20', 'SD 24',
-              'ET 63', 'ET 55', 'ET 45', 'ET 41', 'ET 21',
-              'EZ 9', 'EZ 6', 'EZ 4-MR25', 'EZ 2', 'EZ 1',
-              'UR 8', 'UR 6', 'UR 4', 'UR 2',
-              'Urk'
-            ]
-          },
-          {
-            from: 'Urk',
-            to: 'Lemmer',
-            depth: '≥3 m',
-            notes: 'Tag 4 · Zurück nach Lemmer über EZ- und NM-Tonnenkette.',
-            path: [
-              'Urk',
-              'UR 2', 'UR 4', 'UR 6', 'UR 8',
-              'EZ 1', 'EZ 2', 'EZ 4-MR25', 'EZ 6', 'EZ 8', 'EZ 9',
-              'ET 63', 'ET 55', 'ET 45', 'ET 41', 'ET 21',
-              'SD 24', 'SD 20', 'SD 16',
-              'KG 35', 'KG 31', 'KG 27', 'KG 23', 'KG 13', 'KG 1',
-              'LC 1', 'LC 3', 'LC 5', 'LC 7', 'LC 9',
-              'NM 6', 'NM 8', 'NM 11A', 'NM 12B',
-              'Prinses Margrietsluis',
-              'Lemmer'
-            ]
-          }
+    const defaultRoute = {
+      id: 'default-hoorn-loop',
+      name: 'Standard Hoorn Loop',
+      waypoints: [
+        { name: 'Lemmer (Enjoy Sailing)', lat: 52.846, lng: 5.708 },
+        { name: 'Hoorn', lat: 52.643, lng: 5.071 },
+        { name: 'Amsterdam', lat: 52.383, lng: 4.900 },
+        { name: 'Urk', lat: 52.664, lng: 5.604 },
+        { name: 'Lemmer (Rückkehr)', lat: 52.846, lng: 5.708 }
+      ]
+    };
+
+    const shallowAreas = [
+      {
+        id: 'gouwzee',
+        name: 'Gouwzee-Flachwasser (<2 m)',
+        depth: 1.5,
+        coords: [
+          [52.552, 5.110],
+          [52.540, 5.150],
+          [52.520, 5.137],
+          [52.528, 5.092]
+        ],
+        routeNodes: [
+          [52.561, 5.085],
+          [52.512, 5.063]
         ]
       },
-      B: {
-        id: 'B',
-        label: 'Route B',
-        title: 'Variante: Lemmer → Enkhuizen → Amsterdam → Urk → Lemmer',
-        color: '#1565c0',
-        dashed: true,
-        legs: [
-          {
-            from: 'Lemmer',
-            to: 'Enkhuizen',
-            depth: '≥3 m Fahrwasser',
-            notes: 'Tag 1 · Variante mit Stopp in Enkhuizen (Compagnieshaven).',
-            path: [
-              'Lemmer',
-              'Prinses Margrietsluis', 'NM 12B', 'NM 11A', 'NM 8', 'NM 6',
-              'LC 9', 'LC 7', 'LC 5', 'LC 3', 'LC 1',
-              'KG 1', 'KG 13', 'KG 23', 'KG 27', 'KG 31', 'KG 35',
-              'Enkhuizen'
-            ]
-          },
-          {
-            from: 'Enkhuizen',
-            to: 'Amsterdam',
-            depth: '≥3 m',
-            notes: 'Tag 2 · Weiter via Hoornse Hop nach Amsterdam.',
-            path: [
-              'Enkhuizen',
-              'KG 35', 'KG 31', 'KG 27', 'KG 23', 'KG 13', 'KG 1',
-              'SD 24', 'SD 20', 'SD 16',
-              'MO 6', 'MO 12', 'GZ 16', 'GZ 12', 'PM 7', 'PM 5',
-              'PG 17', 'PG 16', 'D 6', 'IJ 5', 'B',
-              'Amsterdam'
-            ]
-          },
-          {
-            from: 'Amsterdam',
-            to: 'Urk',
-            depth: '≥3 m',
-            notes: 'Tag 3 · Gleicher Nordkurs durchs Markermeer bis Urk.',
-            path: [
-              'Amsterdam',
-              'PG 16', 'PG 17', 'D 6',
-              'PM 5', 'PM 7', 'GZ 16', 'MO 6',
-              'SD 16', 'SD 20', 'SD 24',
-              'ET 63', 'ET 55', 'ET 45', 'ET 41', 'ET 21',
-              'EZ 9', 'EZ 6', 'EZ 4-MR25', 'EZ 2', 'EZ 1',
-              'UR 8', 'UR 6', 'UR 4', 'UR 2',
-              'Urk'
-            ]
-          },
-          {
-            from: 'Urk',
-            to: 'Lemmer',
-            depth: '≥3 m',
-            notes: 'Tag 4 · Zurück nach Lemmer über EZ- und NM-Tonnenkette.',
-            path: [
-              'Urk',
-              'UR 2', 'UR 4', 'UR 6', 'UR 8',
-              'EZ 1', 'EZ 2', 'EZ 4-MR25', 'EZ 6', 'EZ 8', 'EZ 9',
-              'ET 63', 'ET 55', 'ET 45', 'ET 41', 'ET 21',
-              'SD 24', 'SD 20', 'SD 16',
-              'KG 35', 'KG 31', 'KG 27', 'KG 23', 'KG 13', 'KG 1',
-              'LC 1', 'LC 3', 'LC 5', 'LC 7', 'LC 9',
-              'NM 6', 'NM 8', 'NM 11A', 'NM 12B',
-              'Prinses Margrietsluis',
-              'Lemmer'
-            ]
-          }
+      {
+        id: 'markerwadden',
+        name: 'Markerwadden-Flachwasser (<1.5 m)',
+        depth: 1.5,
+        coords: [
+          [52.640, 5.435],
+          [52.625, 5.510],
+          [52.598, 5.495],
+          [52.612, 5.430]
+        ],
+        routeNodes: [
+          [52.655, 5.405],
+          [52.585, 5.540]
+        ]
+      },
+      {
+        id: 'noorderoever',
+        name: 'Noorderoever (<1.8 m)',
+        depth: 1.8,
+        coords: [
+          [52.680, 5.568],
+          [52.668, 5.610],
+          [52.646, 5.598],
+          [52.658, 5.552]
+        ],
+        routeNodes: [
+          [52.702, 5.586],
+          [52.640, 5.570]
         ]
       }
+    ];
+
+    const state = {
+      currentRouteId: null,
+      routeName: '',
+      waypoints: [],
+      requiredDepth: MIN_DEPTH
     };
 
-    Object.values(routes).forEach(route => {
-      let totalNm = 0;
-      route.legs.forEach(leg => {
-        leg.points = resolvePath(leg.path);
-        leg.viaNames = leg.path.filter(name => {
-          if (Array.isArray(name)) return false;
-          if (name === leg.from || name === leg.to) return false;
-          return !ports[name];
-        });
-        leg.viaSample = sampleWaypoints(leg.viaNames, 4);
-        const nm = distanceNm(leg.points);
-        leg.distanceNm = parseFloat(nm.toFixed(1));
-        leg.duration = {
-          minHours: (leg.distanceNm / SPEED_RANGE.max).toFixed(1),
-          maxHours: (leg.distanceNm / SPEED_RANGE.min).toFixed(1)
-        };
-        totalNm += leg.distanceNm;
-      });
-      route.totalNm = parseFloat(totalNm.toFixed(1));
-      route.duration = {
-        minHours: (route.totalNm / SPEED_RANGE.max).toFixed(1),
-        maxHours: (route.totalNm / SPEED_RANGE.min).toFixed(1)
-      };
-    });
+    let savedRoutes = [];
+    let shouldFitMap = false;
+    let addFromMapArmed = false;
+    let legLayers = [];
+    let highlightedLegIndex = null;
 
-    // ---- Karte + stabile Tiles mit Fallback ----
-    const map = L.map('map', { zoomControl:true });
+    const waypointListEl = document.getElementById('waypointList');
+    const routeNameInput = document.getElementById('routeNameInput');
+    const addFromMapBtn = document.getElementById('addFromMapBtn');
+    const addManualBtn = document.getElementById('addManualBtn');
+    const saveRouteBtn = document.getElementById('saveRouteBtn');
+    const clearRouteBtn = document.getElementById('clearRouteBtn');
+    const savedRoutesListEl = document.getElementById('savedRoutesList');
+    const routeDetailsEl = document.getElementById('routeDetails');
+
+    const map = L.map('map', { zoomControl: true });
     map.attributionControl.setPrefix('');
     const carto = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '&copy; OpenStreetMap & CARTO'
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap & CARTO'
     });
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, attribution: '&copy; OpenStreetMap-Mitwirkende'
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap-Mitwirkende'
     });
-    // Start mit Carto; fallback auf OSM wenn ein Fehler auftritt
-    carto.on('tileerror', () => { if (!map.hasLayer(osm)) { map.addLayer(osm); map.removeLayer(carto); } });
+    carto.on('tileerror', () => {
+      if (!map.hasLayer(osm)) {
+        map.addLayer(osm);
+        map.removeLayer(carto);
+      }
+    });
     carto.addTo(map);
-
-    // Seamarks-Overlay (OpenSeaMap) – zeigt Tonnen/Leuchtfeuer/Fahrwasser
     const seamarks = L.tileLayer('https://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {
-      maxZoom: 18, opacity: 0.95, attribution: '&copy; OpenSeaMap Contributors'
+      maxZoom: 18,
+      opacity: 0.95,
+      attribution: '&copy; OpenSeaMap Contributors'
     }).addTo(map);
-
     L.control.layers(
       { 'Carto Voyager': carto, 'OpenStreetMap': osm },
-      { 'OpenSeaMap Seamarks': seamarks },
+      { 'OpenSeaMap Seamarks': seamarks, 'Flachwasser (<2 m)': shallowLayer },
       { collapsed: true }
     ).addTo(map);
+    L.control.scale({ imperial: false }).addTo(map);
+    map.setView([52.7, 5.3], 9);
 
-    L.control.scale({ imperial:false }).addTo(map);
+    const waypointLayer = L.layerGroup().addTo(map);
+    const routeLayer = L.layerGroup().addTo(map);
+    const labelLayer = L.layerGroup().addTo(map);
+    const shallowLayer = L.layerGroup().addTo(map);
 
-    // Hafenmarker
-    const harborInfo = {
-      Lemmer: 'Base: Enjoy Sailing',
-      Hoorn: 'Grashaven • Binnenhaven/Oude Doelenkade',
-      Amsterdam: 'Sixhaven / Amsterdam Marina · Oranjesluizen',
-      Volendam: 'Marina Volendam',
-      Enkhuizen: 'Compagnieshaven / Krabbershaven',
-      Urk: 'Urkerhaven'
-    };
-    const portMarkers = Object.entries(ports).map(([name, latlng]) =>
-      L.marker(latlng).bindPopup(`<b>${name}</b><br/>${harborInfo[name]||''}`).bindTooltip(name)
-    );
+    shallowAreas.forEach(area => {
+      const ring = area.coords.map(([lat, lng]) => [lng, lat]);
+      if (ring[0][0] !== ring[ring.length - 1][0] || ring[0][1] !== ring[ring.length - 1][1]) {
+        ring.push(ring[0]);
+      }
+      area.turfPolygon = turf.polygon([ring]);
+      area.routeNodes = (area.routeNodes || area.coords).map(([lat, lng]) => ({ lat, lng }));
+      L.polygon(area.coords.map(([lat, lng]) => [lat, lng]), {
+        color: '#f16161',
+        weight: 1,
+        fillOpacity: 0.2,
+        dashArray: '6,4'
+      }).bindTooltip(area.name, { sticky: true }).addTo(shallowLayer);
+    });
 
-    const durationRange = duration => `${duration.minHours}–${duration.maxHours} h`;
+    routeNameInput.addEventListener('input', event => {
+      state.routeName = event.target.value;
+    });
 
-    const routeGroups = {};
-    Object.values(routes).forEach(route => {
-      const layers = [];
-      route.legs.forEach((leg, legIndex) => {
-        const polyline = L.polyline(leg.points, {
-          color: route.color,
+    addManualBtn.addEventListener('click', () => {
+      const fallback = state.waypoints[state.waypoints.length - 1] || { lat: 52.846, lng: 5.708 };
+      const defaultName = `WP ${state.waypoints.length + 1}`;
+      addWaypoint({ name: defaultName, lat: fallback.lat, lng: fallback.lng }, { fitMap: state.waypoints.length < 2 });
+    });
+
+    addFromMapBtn.addEventListener('click', () => {
+      addFromMapArmed = !addFromMapArmed;
+      addFromMapBtn.classList.toggle('is-armed', addFromMapArmed);
+      addFromMapBtn.textContent = addFromMapArmed ? 'Kartenklick zum Platzieren…' : '+ Wegpunkt via Karte';
+    });
+
+    map.on('click', event => {
+      if (!addFromMapArmed) return;
+      addFromMapArmed = false;
+      addFromMapBtn.classList.remove('is-armed');
+      addFromMapBtn.textContent = '+ Wegpunkt via Karte';
+      const defaultName = `WP ${state.waypoints.length + 1}`;
+      addWaypoint({
+        name: defaultName,
+        lat: roundCoord(event.latlng.lat),
+        lng: roundCoord(event.latlng.lng)
+      }, { fitMap: true });
+    });
+
+    clearRouteBtn.addEventListener('click', () => {
+      state.currentRouteId = null;
+      state.routeName = 'Neue Route';
+      state.waypoints = [];
+      shouldFitMap = true;
+      renderAll();
+    });
+
+    saveRouteBtn.addEventListener('click', saveCurrentRoute);
+
+    savedRoutesListEl.addEventListener('click', event => {
+      const target = event.target.closest('button[data-action]');
+      if (!target) return;
+      const item = target.closest('li[data-route-id]');
+      if (!item) return;
+      const routeId = item.dataset.routeId;
+      if (target.dataset.action === 'load') {
+        const route = savedRoutes.find(r => r.id === routeId);
+        if (route) {
+          applyRoute(route, { fitMap: true });
+          renderSavedRoutes();
+        }
+      } else if (target.dataset.action === 'delete') {
+        if (!confirm('Route wirklich löschen?')) return;
+        savedRoutes = savedRoutes.filter(r => r.id !== routeId);
+        persistSavedRoutes();
+        if (state.currentRouteId === routeId) {
+          state.currentRouteId = null;
+          state.routeName = 'Neue Route';
+          state.waypoints = [];
+          shouldFitMap = true;
+          renderAll();
+        }
+        renderSavedRoutes();
+      }
+    });
+
+    waypointListEl.addEventListener('input', event => {
+      const row = event.target.closest('.waypoint-row');
+      if (!row) return;
+      const index = Number(row.dataset.index);
+      if (Number.isNaN(index)) return;
+      const field = event.target.getAttribute('name');
+      const value = event.target.value;
+      if (field === 'name') {
+        updateWaypoint(index, { name: value });
+      } else if (field === 'lat' || field === 'lng') {
+        const numeric = parseFloat(value);
+        if (!Number.isNaN(numeric)) {
+          updateWaypoint(index, { [field]: roundCoord(numeric) });
+        }
+      }
+    });
+
+    waypointListEl.addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const row = button.closest('.waypoint-row');
+      if (!row) return;
+      const index = Number(row.dataset.index);
+      if (Number.isNaN(index)) return;
+      const action = button.dataset.action;
+      if (action === 'delete') {
+        removeWaypoint(index);
+      } else if (action === 'up') {
+        moveWaypoint(index, -1);
+      } else if (action === 'down') {
+        moveWaypoint(index, 1);
+      }
+    });
+
+    routeDetailsEl.addEventListener('mouseover', handleLegHover);
+    routeDetailsEl.addEventListener('focusin', handleLegHover);
+    routeDetailsEl.addEventListener('mouseleave', clearHighlightedLeg);
+    routeDetailsEl.addEventListener('focusout', event => {
+      if (!routeDetailsEl.contains(event.relatedTarget)) {
+        clearHighlightedLeg();
+      }
+    });
+    routeDetailsEl.addEventListener('click', handleLegHover);
+
+    init();
+
+    function init() {
+      savedRoutes = loadRoutesFromStorage();
+      if (!savedRoutes.length) {
+        savedRoutes.push(defaultRoute);
+        persistSavedRoutes();
+      }
+      applyRoute(savedRoutes[0] || defaultRoute, { fitMap: true });
+      renderSavedRoutes();
+      renderAll({ fitMap: true });
+    }
+
+    function addWaypoint(data, { fitMap = false } = {}) {
+      const waypoint = {
+        id: crypto.randomUUID ? crypto.randomUUID() : `wp-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: data.name || `WP ${state.waypoints.length + 1}`,
+        lat: roundCoord(data.lat),
+        lng: roundCoord(data.lng)
+      };
+      state.waypoints.push(waypoint);
+      shouldFitMap = shouldFitMap || fitMap;
+      renderAll({ fitMap });
+    }
+
+    function updateWaypoint(index, updates) {
+      const wp = state.waypoints[index];
+      if (!wp) return;
+      state.waypoints[index] = {
+        ...wp,
+        ...updates
+      };
+      renderAll();
+    }
+
+    function removeWaypoint(index) {
+      state.waypoints.splice(index, 1);
+      shouldFitMap = true;
+      renderAll({ fitMap: true });
+    }
+
+    function moveWaypoint(index, offset) {
+      const target = index + offset;
+      if (target < 0 || target >= state.waypoints.length) return;
+      const [wp] = state.waypoints.splice(index, 1);
+      state.waypoints.splice(target, 0, wp);
+      renderAll();
+    }
+
+    function renderAll({ fitMap = false } = {}) {
+      if (fitMap) {
+        shouldFitMap = true;
+      }
+      routeNameInput.value = state.routeName;
+      renderWaypointList();
+      const legs = updateRoute();
+      renderRouteSummary(legs);
+    }
+
+    function renderWaypointList() {
+      if (!state.waypoints.length) {
+        waypointListEl.innerHTML = '<div class="waypoint-empty">Füge mindestens zwei Wegpunkte hinzu, um eine Route zu erstellen.</div>';
+        return;
+      }
+
+      waypointListEl.innerHTML = state.waypoints
+        .map((wp, index) => `
+          <div class="waypoint-row" data-index="${index}">
+            <span class="index">${index + 1}</span>
+            <input type="text" name="name" value="${escapeHtml(wp.name || '')}" placeholder="Waypoint" />
+            <input type="number" step="0.0001" name="lat" value="${wp.lat.toFixed(5)}" aria-label="Breite" />
+            <input type="number" step="0.0001" name="lng" value="${wp.lng.toFixed(5)}" aria-label="Länge" />
+            <div class="waypoint-actions">
+              <button type="button" data-action="up" title="Nach oben">↑</button>
+              <button type="button" data-action="down" title="Nach unten">↓</button>
+              <button type="button" data-action="delete" class="danger" title="Entfernen">✕</button>
+            </div>
+          </div>
+        `)
+        .join('');
+    }
+
+    function updateRoute() {
+      waypointLayer.clearLayers();
+      routeLayer.clearLayers();
+      labelLayer.clearLayers();
+      legLayers = [];
+
+      state.waypoints.forEach((wp, index) => {
+        const marker = L.marker([wp.lat, wp.lng], { draggable: true });
+        marker.bindTooltip(`${index + 1}. ${wp.name || 'Waypoint'}`, { permanent: true, direction: 'top', offset: [0, -16] });
+        marker.on('dragend', event => {
+          const { lat, lng } = event.target.getLatLng();
+          updateWaypoint(index, { lat: roundCoord(lat), lng: roundCoord(lng) });
+        });
+        waypointLayer.addLayer(marker);
+      });
+
+      if (state.waypoints.length < 2) {
+        return [];
+      }
+
+      const legs = [];
+      for (let i = 0; i < state.waypoints.length - 1; i += 1) {
+        const start = state.waypoints[i];
+        const end = state.waypoints[i + 1];
+        const safePoints = simplifyPath(computeSafeSegment(start, end));
+        const distanceNm = Number(computePathDistance(safePoints).toFixed(1));
+
+        const latLngs = safePoints.map(pt => [pt.lat, pt.lng]);
+        const polyline = L.polyline(latLngs, {
+          color: '#1565c0',
           weight: 4,
           opacity: 0.9,
           lineCap: 'round',
-          lineJoin: 'round',
-          dashArray: route.dashed ? '10,8' : null
+          lineJoin: 'round'
         });
-        polyline.bindTooltip(`${leg.from} → ${leg.to} · ${leg.distanceNm} sm`, { sticky: true });
-        const center = polyline.getBounds().getCenter();
-        const labelHtml = `<div class="route-label"><div class="tooltip-heading">${leg.from} → ${leg.to}</div><div class="tooltip-meta">${leg.distanceNm} sm · ${durationRange(leg.duration)}</div><div class="tooltip-meta">@ 5–7 kn SOG</div></div>`;
-        const label = L.marker(center, {
+        routeLayer.addLayer(polyline);
+
+        const labelHtml = `<div class="route-label"><div class="tooltip-heading">${escapeHtml(start.name || 'Start')} → ${escapeHtml(end.name || 'Ziel')}</div><div class="tooltip-meta">${distanceNm} sm · ${formatDuration(distanceNm)}</div></div>`;
+        const label = L.marker(polyline.getBounds().getCenter(), {
           interactive: false,
           icon: L.divIcon({ className: '', html: labelHtml, iconSize: null })
         });
-        leg.layer = polyline;
-        leg.labelMarker = label;
-        polyline.on('mouseover', () => highlightLeg(route.id, legIndex));
+        labelLayer.addLayer(label);
+
+        const legIndex = legs.length;
+        polyline.on('mouseover', () => highlightLeg(legIndex));
         polyline.on('mouseout', () => {
-          if (highlightedLeg.routeId === route.id && highlightedLeg.index === legIndex) {
+          if (highlightedLegIndex === legIndex) {
             clearHighlightedLeg();
           }
         });
-        polyline.on('click', () => {
-          if (route.id !== activeRouteId) return;
-          highlightLeg(route.id, legIndex);
-          if (detailsEl) {
-            const item = detailsEl.querySelector(`li[data-leg-index="${legIndex}"]`);
-            if (item) item.focus();
-          }
+        polyline.on('click', () => highlightLeg(legIndex));
+
+        legLayers.push({ polyline, label });
+
+        legs.push({
+          index: legIndex,
+          from: start,
+          to: end,
+          distanceNm,
+          duration: formatDuration(distanceNm),
+          via: summariseViaPoints(safePoints)
         });
-        layers.push(polyline, label);
-      });
-      routeGroups[route.id] = L.featureGroup(layers);
-    });
-    portMarkers.forEach(m => m.addTo(map));
+      }
 
-    const btnA = document.getElementById('btnA');
-    const btnB = document.getElementById('btnB');
-    const buttons = { A: btnA, B: btnB };
-    const detailsEl = document.getElementById('routeDetails');
+      if (shouldFitMap && routeLayer.getLayers().length) {
+        shouldFitMap = false;
+        map.fitBounds(routeLayer.getBounds().pad(0.2));
+      }
 
-    let highlightedLeg = { routeId: null, index: null };
+      return legs;
+    }
 
-    function renderRouteDetails(route) {
-      if (!detailsEl) return;
-      const list = route.legs.map((leg, idx) => {
-        const via = (leg.viaSample || []).map(name => `<span class="chip">${name}</span>`).join('');
-        const notes = leg.notes ? `<p class="leg-notes">${leg.notes}</p>` : '';
+    function renderRouteSummary(legs) {
+      if (!legs.length) {
+        routeDetailsEl.innerHTML = '<div class="route-card empty">Noch keine Route aktiv. Füge Wegpunkte hinzu oder lade eine gespeicherte Route.</div>';
+        return;
+      }
+
+      const totalNm = legs.reduce((sum, leg) => sum + leg.distanceNm, 0);
+      const totalDuration = formatDuration(totalNm);
+
+      const legHtml = legs.map(leg => {
+        const viaHtml = leg.via.length ? `<div class="leg-via">${leg.via.map(text => `<span class="chip">${escapeHtml(text)}</span>`).join('')}</div>` : '';
         return `
-          <li data-leg-index="${idx}" tabindex="0">
+          <li data-leg-index="${leg.index}" tabindex="0">
             <div class="leg-line">
               <div>
-                <div class="leg-name">${leg.from} → ${leg.to}</div>
+                <div class="leg-name">${escapeHtml(leg.from.name || 'Waypoint')} → ${escapeHtml(leg.to.name || 'Waypoint')}</div>
                 <div class="leg-meta">
                   <span class="leg-distance">${leg.distanceNm} sm</span>
-                  <span class="leg-duration">${durationRange(leg.duration)} · 5–7 kn</span>
+                  <span class="leg-duration">${leg.duration} · 5–7 kn</span>
                 </div>
               </div>
-              <span class="leg-depth">${leg.depth || ''}</span>
             </div>
-            ${via ? `<div class="leg-via" aria-label="Wegpunkte">${via}</div>` : ''}
-            ${notes}
+            ${viaHtml}
           </li>
         `;
       }).join('');
-      detailsEl.innerHTML = `
+
+      routeDetailsEl.innerHTML = `
         <div class="route-card">
           <div class="route-card__header">
-            <span class="badge">${route.label}</span>
-            <h2>${route.title}</h2>
-            <p>${route.totalNm} sm gesamt · ${durationRange(route.duration)} @ 5–7 kn</p>
+            <span class="badge">Route</span>
+            <h2>${escapeHtml(state.routeName || 'Unbenannte Route')}</h2>
+            <p>${totalNm.toFixed(1)} sm gesamt · ${totalDuration} @ 5–7 kn</p>
           </div>
-          <ul class="leg-list">${list}</ul>
+          <ul class="leg-list">${legHtml}</ul>
         </div>
       `;
     }
 
+    function highlightLeg(index) {
+      if (index === highlightedLegIndex) return;
+      clearHighlightedLeg();
+      const layer = legLayers[index];
+      if (!layer) return;
+      highlightedLegIndex = index;
+      layer.polyline.setStyle({ weight: 7, opacity: 1 });
+      layer.polyline.bringToFront();
+      const labelEl = layer.label.getElement();
+      if (labelEl) {
+        const node = labelEl.querySelector('.route-label');
+        if (node) node.classList.add('is-active');
+      }
+      const item = routeDetailsEl.querySelector(`li[data-leg-index="${index}"]`);
+      if (item) item.classList.add('is-active');
+    }
+
     function clearHighlightedLeg() {
-      if (highlightedLeg.routeId === null) return;
-      const route = routes[highlightedLeg.routeId];
-      const leg = route?.legs?.[highlightedLeg.index];
-      if (leg?.layer) {
-        leg.layer.setStyle({ weight: 4, opacity: 0.9 });
+      if (highlightedLegIndex === null) return;
+      const layer = legLayers[highlightedLegIndex];
+      if (layer) {
+        layer.polyline.setStyle({ weight: 4, opacity: 0.9 });
+        const labelEl = layer.label.getElement();
+        if (labelEl) {
+          const node = labelEl.querySelector('.route-label');
+          if (node) node.classList.remove('is-active');
+        }
       }
-      if (leg?.labelMarker) {
-        const el = leg.labelMarker.getElement();
-        const inner = el ? el.querySelector('.route-label') : null;
-        if (inner) inner.classList.remove('is-active');
-      }
-      if (highlightedLeg.routeId === activeRouteId && detailsEl) {
-        const item = detailsEl.querySelector(`li[data-leg-index="${highlightedLeg.index}"]`);
-        if (item) item.classList.remove('is-active');
-      }
-      highlightedLeg = { routeId: null, index: null };
+      const activeItem = routeDetailsEl.querySelector('li.is-active');
+      if (activeItem) activeItem.classList.remove('is-active');
+      highlightedLegIndex = null;
     }
 
-    function highlightLeg(routeId, index) {
-      if (highlightedLeg.routeId === routeId && highlightedLeg.index === index) return;
-      clearHighlightedLeg();
-      const route = routes[routeId];
-      const leg = route?.legs?.[index];
-      if (!leg || !leg.layer) return;
-      leg.layer.setStyle({ weight: 7, opacity: 1 });
-      leg.layer.bringToFront();
-      highlightedLeg = { routeId, index };
-      if (routeId === activeRouteId && detailsEl) {
-        const item = detailsEl.querySelector(`li[data-leg-index="${index}"]`);
-        if (item) item.classList.add('is-active');
+    function handleLegHover(event) {
+      const item = event.target.closest('li[data-leg-index]');
+      if (!item) return;
+      highlightLeg(Number(item.dataset.legIndex));
+    }
+
+    function saveCurrentRoute() {
+      if (state.waypoints.length < 2) {
+        alert('Bitte mindestens zwei Wegpunkte setzen, bevor du speicherst.');
+        return;
       }
-      if (leg.labelMarker) {
-        const el = leg.labelMarker.getElement();
-        const inner = el ? el.querySelector('.route-label') : null;
-        if (inner) inner.classList.add('is-active');
+      const trimmedName = (state.routeName || '').trim();
+      if (!trimmedName) {
+        state.routeName = `Route ${new Date().toLocaleString('de-DE')}`;
+      }
+      const payload = {
+        id: state.currentRouteId || `route-${Date.now()}`,
+        name: state.routeName,
+        waypoints: state.waypoints.map(wp => ({ name: wp.name, lat: wp.lat, lng: wp.lng }))
+      };
+      const existingIndex = savedRoutes.findIndex(route => route.id === payload.id);
+      if (existingIndex >= 0) {
+        savedRoutes[existingIndex] = payload;
+      } else {
+        savedRoutes.push(payload);
+      }
+      state.currentRouteId = payload.id;
+      persistSavedRoutes();
+      renderSavedRoutes();
+      renderAll();
+    }
+
+    function applyRoute(route, { fitMap = false } = {}) {
+      state.currentRouteId = route?.id || null;
+      state.routeName = route?.name || 'Neue Route';
+      state.waypoints = (route?.waypoints || []).map(wp => ({
+        id: crypto.randomUUID ? crypto.randomUUID() : `wp-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name: wp.name,
+        lat: roundCoord(wp.lat),
+        lng: roundCoord(wp.lng)
+      }));
+      shouldFitMap = shouldFitMap || fitMap;
+      renderAll({ fitMap });
+    }
+
+    function renderSavedRoutes() {
+      if (!savedRoutes.length) {
+        savedRoutesListEl.innerHTML = '<li class="waypoint-empty">Noch keine gespeicherten Routen.</li>';
+        return;
+      }
+      savedRoutesListEl.innerHTML = savedRoutes.map(route => {
+        const distance = estimateRouteDistance(route.waypoints);
+        const isActive = route.id === state.currentRouteId;
+        return `
+          <li class="saved-routes__item${isActive ? ' is-active' : ''}" data-route-id="${route.id}">
+            <div>
+              <strong>${escapeHtml(route.name)}</strong>
+              <small>${route.waypoints.length} WPs · ${distance.toFixed(1)} sm</small>
+            </div>
+            <div class="saved-actions">
+              <button type="button" data-action="load">${isActive ? 'Aktiv' : 'Öffnen'}</button>
+              <button type="button" data-action="delete" class="danger">Löschen</button>
+            </div>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function loadRoutesFromStorage() {
+      try {
+        const raw = localStorage.getItem(ROUTE_STORE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+        return [];
+      } catch (error) {
+        console.warn('Konnte gespeicherte Routen nicht laden:', error);
+        return [];
       }
     }
 
-    function fitTo(layer) {
-      map.fitBounds(layer.getBounds().pad(0.2));
+    function persistSavedRoutes() {
+      try {
+        localStorage.setItem(ROUTE_STORE_KEY, JSON.stringify(savedRoutes));
+      } catch (error) {
+        console.warn('Konnte Routen nicht speichern:', error);
+      }
     }
 
-    let activeRouteId = 'A';
-    map.addLayer(routeGroups[activeRouteId]);
-    fitTo(routeGroups[activeRouteId]);
-    buttons[activeRouteId].classList.add('active');
-    renderRouteDetails(routes[activeRouteId]);
+    function computeSafeSegment(startPoint, endPoint, visited = new Set()) {
+      const start = clonePoint(startPoint);
+      const end = clonePoint(endPoint);
+      const directLine = turf.lineString([toLngLat(start), toLngLat(end)]);
+      const blockingAreas = shallowAreas.filter(area => area.depth < state.requiredDepth && !turf.booleanDisjoint(directLine, area.turfPolygon));
 
-    function activateRoute(id) {
-      if (id === activeRouteId) return;
-      map.removeLayer(routeGroups[activeRouteId]);
-      buttons[activeRouteId].classList.remove('active');
-      clearHighlightedLeg();
-      activeRouteId = id;
-      map.addLayer(routeGroups[id]);
-      buttons[id].classList.add('active');
-      fitTo(routeGroups[id]);
-      renderRouteDetails(routes[id]);
+      if (!blockingAreas.length) {
+        return [start, end];
+      }
+
+      let best = null;
+      blockingAreas.forEach(area => {
+        const marker = `${area.id}:${start.lat}:${start.lng}:${end.lat}:${end.lng}`;
+        if (visited.has(marker)) {
+          return;
+        }
+        const nextVisited = new Set(visited);
+        nextVisited.add(marker);
+        area.routeNodes.forEach(node => {
+          const corner = clonePoint(node);
+          if (pointsEqual(start, corner) || pointsEqual(end, corner)) {
+            return;
+          }
+          const pathToCorner = computeSafeSegment(start, corner, nextVisited);
+          const pathFromCorner = computeSafeSegment(corner, end, nextVisited);
+          if (!pathToCorner || !pathFromCorner) return;
+          const combined = mergeSegments(pathToCorner, pathFromCorner);
+          if (pathCrossesForbidden(combined)) return;
+          const distance = computePathDistance(combined);
+          if (!best || distance < best.distance) {
+            best = { points: combined, distance };
+          }
+        });
+      });
+
+      return best ? best.points : [start, end];
     }
 
-    btnA.addEventListener('click', () => activateRoute('A'));
-    btnB.addEventListener('click', () => activateRoute('B'));
+    function computePathDistance(points) {
+      let total = 0;
+      for (let i = 1; i < points.length; i += 1) {
+        total += haversineNm(points[i - 1], points[i]);
+      }
+      return total;
+    }
 
-    if (detailsEl) {
-      detailsEl.addEventListener('mouseover', event => {
-        const item = event.target.closest('li[data-leg-index]');
-        if (!item) return;
-        highlightLeg(activeRouteId, Number(item.dataset.legIndex));
+    function summariseViaPoints(points, limit = 3) {
+      if (!points || points.length <= 2) return [];
+      const inner = points.slice(1, -1);
+      if (!inner.length) return [];
+      if (inner.length <= limit) {
+        return inner.map(formatPointLabel);
+      }
+      const sampled = [];
+      const step = (inner.length - 1) / (limit - 1);
+      for (let i = 0; i < limit; i += 1) {
+        const idx = Math.round(i * step);
+        sampled.push(inner[Math.min(idx, inner.length - 1)]);
+      }
+      return sampled.map(formatPointLabel);
+    }
+
+    function formatPointLabel(point) {
+      return `${point.lat.toFixed(3)}°N · ${point.lng.toFixed(3)}°E`;
+    }
+
+    function mergeSegments(a, b) {
+      if (!a.length) return b.slice();
+      const merged = a.slice();
+      for (let i = 1; i < b.length; i += 1) {
+        merged.push(clonePoint(b[i]));
+      }
+      return merged;
+    }
+
+    function simplifyPath(points) {
+      const simplified = [];
+      points.forEach(point => {
+        if (!simplified.length || !pointsEqual(simplified[simplified.length - 1], point)) {
+          simplified.push(clonePoint(point));
+        }
       });
-      detailsEl.addEventListener('focusin', event => {
-        const item = event.target.closest('li[data-leg-index]');
-        if (!item) return;
-        highlightLeg(activeRouteId, Number(item.dataset.legIndex));
-      });
-      detailsEl.addEventListener('click', event => {
-        const item = event.target.closest('li[data-leg-index]');
-        if (!item) return;
-        highlightLeg(activeRouteId, Number(item.dataset.legIndex));
-      });
-      detailsEl.addEventListener('mouseleave', () => {
-        clearHighlightedLeg();
-      });
-      detailsEl.addEventListener('focusout', event => {
-        if (detailsEl.contains(event.relatedTarget)) return;
-        clearHighlightedLeg();
-      });
+      return simplified;
+    }
+
+    function pathCrossesForbidden(points) {
+      for (let i = 1; i < points.length; i += 1) {
+        const line = turf.lineString([toLngLat(points[i - 1]), toLngLat(points[i])]);
+        for (const area of shallowAreas) {
+          if (area.depth >= state.requiredDepth) continue;
+          if (!turf.booleanDisjoint(line, area.turfPolygon)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function estimateRouteDistance(waypoints) {
+      if (!Array.isArray(waypoints) || waypoints.length < 2) return 0;
+      let total = 0;
+      for (let i = 1; i < waypoints.length; i += 1) {
+        const start = waypoints[i - 1];
+        const end = waypoints[i];
+        const path = simplifyPath(computeSafeSegment(start, end));
+        total += computePathDistance(path);
+      }
+      return total;
+    }
+
+    function haversineNm(a, b) {
+      const dLat = toRad(b.lat - a.lat);
+      const dLng = toRad(b.lng - a.lng);
+      const lat1 = toRad(a.lat);
+      const lat2 = toRad(b.lat);
+      const sinLat = Math.sin(dLat / 2);
+      const sinLng = Math.sin(dLng / 2);
+      const h = sinLat * sinLat + Math.cos(lat1) * Math.cos(lat2) * sinLng * sinLng;
+      const c = 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+      return 6371.0088 * c * NM_FROM_KM;
+    }
+
+    function toRad(value) {
+      return value * Math.PI / 180;
+    }
+
+    function clonePoint(point) {
+      return { lat: Number(point.lat), lng: Number(point.lng) };
+    }
+
+    function toLngLat(point) {
+      return [point.lng, point.lat];
+    }
+
+    function pointsEqual(a, b) {
+      return Math.abs(a.lat - b.lat) < 1e-6 && Math.abs(a.lng - b.lng) < 1e-6;
+    }
+
+    function roundCoord(value) {
+      return Math.round(value * 1e6) / 1e6;
+    }
+
+    function formatDuration(distanceNm) {
+      const fast = (distanceNm / SPEED_RANGE.max).toFixed(1);
+      const slow = (distanceNm / SPEED_RANGE.min).toFixed(1);
+      return `${fast}–${slow} h`;
+    }
+
+    function escapeHtml(value) {
+      return (value || '').replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char] || char));
     }
   </script>
 </body>
